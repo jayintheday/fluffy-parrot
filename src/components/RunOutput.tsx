@@ -97,6 +97,7 @@ export function RunOutput({ run }: RunOutputProps) {
 
       {/* params used + input */}
       <div
+        className="selectable"
         style={{
           padding: '6px 12px',
           borderBottom: '1px solid var(--panel-border)',

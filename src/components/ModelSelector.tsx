@@ -119,7 +119,6 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
         </svg>
       </div>
 
-      <span style={{ color: 'var(--text-dim)', fontSize: 9, letterSpacing: '0.15em' }}>MODEL</span>
     </div>
   )
 }

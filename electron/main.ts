@@ -151,7 +151,8 @@ ipcMain.handle('api:sendMessage', async (event, payload: SendPayload) => {
     else buildParams.temperature = payload.temperature
     if (payload.topK > 0) buildParams.top_k = payload.topK
   } else {
-    buildParams.thinking = { type: 'enabled', budget_tokens: payload.thinkingBudget }
+    const safeBudget = Math.min(payload.thinkingBudget, payload.maxTokens - 1)
+    buildParams.thinking = { type: 'enabled', budget_tokens: safeBudget }
   }
 
   if (payload.systemPrompt) {

@@ -39,7 +39,7 @@ function Toggle({ on, label, onClick }: { on: boolean; label: string; onClick: (
           }}
         />
       </div>
-      <span style={{ color: on ? 'var(--accent)' : 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em' }}>
+      <span style={{ color: on ? 'var(--accent)' : 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap', textAlign: 'center' }}>
         {label}
       </span>
     </div>
@@ -68,7 +68,7 @@ function Cycle({ label, value, onClick }: { label: string; value: string; onClic
       >
         {value.toUpperCase()}
       </div>
-      <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em' }}>{label}</span>
+      <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap', textAlign: 'center' }}>{label}</span>
     </div>
   )
 }
@@ -105,7 +105,7 @@ function TextField({
           boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)'
         }}
       />
-      <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em' }}>{label}</span>
+      <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap', textAlign: 'center' }}>{label}</span>
     </div>
   )
 }
@@ -213,12 +213,19 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
         <span>ADVANCED</span>
       </div>
 
-      {open && (
+      <div
+          style={{
+            maxHeight: open ? 120 : 0,
+            overflow: 'hidden',
+            transition: 'max-height 0.38s ease',
+          }}
+        >
         <div
           style={{
             display: 'flex',
-            alignItems: 'flex-start',
-            flexWrap: 'wrap',
+            alignItems: 'center',
+            flexWrap: 'nowrap',
+            overflowX: 'auto',
             gap: 18,
             padding: '8px 24px 16px',
             boxShadow: 'var(--panel-shadow)'
@@ -230,12 +237,11 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
             value={params.thinkingBudget}
             min={1024}
             max={32000}
-            defaultValue={4096}
+            defaultValue={1024}
             step={256}
             size={52}
-            unit="tok"
             onChange={v => {
-              const budget = Math.round(v / 256) * 256
+              const budget = Math.min(Math.round(v / 256) * 256, params.maxTokens - 1)
               onChange({ ...params, thinkingBudget: budget, thinkingEnabled: budget > 1024 })
             }}
           />
@@ -260,7 +266,7 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
           <TextField label="CONTAINER" value={params.container} placeholder="id" width={90} onChange={v => set('container', v)} />
           <TextField label="GEO" value={params.inferenceGeo} placeholder="region" width={70} onChange={v => set('inferenceGeo', v)} />
         </div>
-      )}
+      </div>
     </div>
   )
 }

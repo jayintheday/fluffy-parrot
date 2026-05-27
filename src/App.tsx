@@ -25,7 +25,7 @@ const DEFAULT_PARAMS: ClaudeParams = {
   systemPrompt: '',
   stopSequences: [],
   thinkingEnabled: false,
-  thinkingBudget: 4096,
+  thinkingBudget: 1024,
   effort: 'off',
   serviceTier: 'auto',
   userId: '',
