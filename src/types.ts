@@ -1,6 +1,7 @@
 export type Attachment =
   | { kind: 'image'; mediaType: string; data: string; name: string }
   | { kind: 'pdf'; mediaType: 'application/pdf'; data: string; name: string }
+  | { kind: 'text'; mediaType: string; data: string; name: string }
 
 export interface ContentBlock {
   type: 'text' | 'thinking' | 'tool_use' | 'tool_result'

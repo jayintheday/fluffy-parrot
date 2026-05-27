@@ -10,9 +10,9 @@ export function Display({ value, onChange }: DisplayProps) {
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      height: '100%',
-      background: 'var(--bg-panel)',
-      borderRight: '1px solid var(--panel-border)'
+      flex: 1,
+      minHeight: 0,
+      background: 'var(--bg-panel)'
     }}>
       <div style={{
         padding: '6px 10px',

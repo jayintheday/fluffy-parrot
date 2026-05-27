@@ -10,17 +10,21 @@ export interface RunInput {
   attachments: Attachment[]
 }
 
+function attachmentToBlock(a: Attachment): unknown {
+  if (a.kind === 'image')
+    return { type: 'image', source: { type: 'base64', media_type: a.mediaType, data: a.data } }
+  if (a.kind === 'text')
+    return { type: 'document', source: { type: 'text', media_type: 'text/plain', data: a.data } }
+  return { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: a.data } }
+}
+
 // Convert a single-shot input into API content blocks.
-function inputToApiContent(input: RunInput): unknown[] {
+// contextFiles are prepended so Claude has the document context before the question.
+function inputToApiContent(input: RunInput, contextFiles: Attachment[]): unknown[] {
   const content: unknown[] = []
+  for (const f of contextFiles) content.push(attachmentToBlock(f))
+  for (const a of input.attachments) content.push(attachmentToBlock(a))
   if (input.text) content.push({ type: 'text', text: input.text })
-  for (const a of input.attachments) {
-    if (a.kind === 'image') {
-      content.push({ type: 'image', source: { type: 'base64', media_type: a.mediaType, data: a.data } })
-    } else {
-      content.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: a.data } })
-    }
-  }
   if (content.length === 0) content.push({ type: 'text', text: '' })
   return content
 }
@@ -37,7 +41,7 @@ export function useRuns() {
   }, [])
 
   const runPrompt = useCallback(
-    async (systemPrompt: string, input: RunInput, params: ClaudeParams) => {
+    async (systemPrompt: string, input: RunInput, params: ClaudeParams, contextFiles: Attachment[] = []) => {
       const id = uid()
       counterRef.current += 1
       const run: Run = {
@@ -74,7 +78,7 @@ export function useRuns() {
         toolChoice: params.toolChoice,
         container: params.container,
         inferenceGeo: params.inferenceGeo,
-        messages: [{ role: 'user' as const, content: inputToApiContent(input) }]
+        messages: [{ role: 'user' as const, content: inputToApiContent(input, contextFiles) }]
       }
 
       if (params.stream) {

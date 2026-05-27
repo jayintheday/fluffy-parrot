@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { KnobBank } from './components/KnobBank'
 import { AdvancedRack } from './components/AdvancedRack'
 import { Display } from './components/Display'
+import { ContextUpload } from './components/ContextUpload'
 import { RunTabs } from './components/RunTabs'
 import { RunOutput } from './components/RunOutput'
 import { DiffView } from './components/DiffView'
@@ -38,7 +39,13 @@ export function App() {
   const [params, setParams] = useState<ClaudeParams>(DEFAULT_PARAMS)
   const [inputText, setInputText] = useState('')
   const [inputAttachments, setInputAttachments] = useState<Attachment[]>([])
+  const [contextFiles, setContextFiles] = useState<Attachment[]>([])
   const [hasKey, setHasKey] = useState<boolean | null>(null)
+
+  const handleAddContext = (a: Attachment) =>
+    setContextFiles(prev => prev.some(f => f.name === a.name) ? prev : [...prev, a])
+  const handleRemoveContext = (name: string) =>
+    setContextFiles(prev => prev.filter(f => f.name !== name))
 
   const { runs, activeRunId, streaming, runPrompt, selectRun, deleteRun, clearRuns } = useRuns()
 
@@ -68,7 +75,7 @@ export function App() {
 
   const handleRun = () => {
     setComparing(false)
-    runPrompt(params.systemPrompt, { text: inputText.trim(), attachments: inputAttachments }, params)
+    runPrompt(params.systemPrompt, { text: inputText.trim(), attachments: inputAttachments }, params, contextFiles)
   }
 
   const toggleCompare = useCallback(() => {
@@ -189,7 +196,17 @@ export function App() {
           overflow: 'hidden'
         }}
       >
-        <Display value={params.systemPrompt} onChange={sp => setParams(p => ({ ...p, systemPrompt: sp }))} />
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          background: 'var(--bg-panel)',
+          borderRight: '1px solid var(--panel-border)',
+          overflow: 'hidden'
+        }}>
+          <Display value={params.systemPrompt} onChange={sp => setParams(p => ({ ...p, systemPrompt: sp }))} />
+          <ContextUpload files={contextFiles} onAdd={handleAddContext} onRemove={handleRemoveContext} />
+        </div>
         {comparing ? (
           <DiffView runs={runs} aId={compareA} bId={compareB} onChangeA={setCompareA} onChangeB={setCompareB} />
         ) : (
