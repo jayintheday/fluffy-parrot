@@ -119,7 +119,7 @@ export function KnobBank({ params, onChange }: KnobBankProps) {
             cursor: 'pointer',
             position: 'relative',
             boxShadow: params.stream ? '0 0 8px var(--accent-glow)' : 'inset 0 1px 3px rgba(0,0,0,0.5)',
-            transition: 'all 0.1s'
+            transition: 'background 0.2s cubic-bezier(0.4,0,0.2,1), border-color 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s cubic-bezier(0.4,0,0.2,1)'
           }}
           title="Toggle streaming"
         >
@@ -130,7 +130,7 @@ export function KnobBank({ params, onChange }: KnobBankProps) {
             width: 10,
             height: 10,
             background: params.stream ? '#fff' : 'var(--text-dim)',
-            transition: 'left 0.1s'
+            transition: 'left 0.2s cubic-bezier(0.4,0,0.2,1), background 0.2s cubic-bezier(0.4,0,0.2,1)'
           }} />
         </div>
         <span style={{ color: params.stream ? 'var(--accent)' : 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em' }}>

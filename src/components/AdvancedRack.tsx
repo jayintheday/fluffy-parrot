@@ -24,7 +24,7 @@ function Toggle({ on, label, onClick }: { on: boolean; label: string; onClick: (
           cursor: 'pointer',
           position: 'relative',
           boxShadow: on ? '0 0 8px var(--accent-glow)' : 'inset 0 1px 3px rgba(0,0,0,0.5)',
-          transition: 'all 0.1s'
+          transition: 'background 0.2s cubic-bezier(0.4,0,0.2,1), border-color 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s cubic-bezier(0.4,0,0.2,1)'
         }}
       >
         <div
@@ -35,7 +35,7 @@ function Toggle({ on, label, onClick }: { on: boolean; label: string; onClick: (
             width: 10,
             height: 10,
             background: on ? '#fff' : 'var(--text-dim)',
-            transition: 'left 0.1s'
+            transition: 'left 0.2s cubic-bezier(0.4,0,0.2,1), background 0.2s cubic-bezier(0.4,0,0.2,1)'
           }}
         />
       </div>
