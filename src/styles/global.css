@@ -45,3 +45,23 @@ html, body, #root {
   background: var(--accent);
   box-shadow: 0 0 4px var(--accent-glow);
 }
+
+/* Vignette overlay — rendered above content, pointer-events none */
+.vignette-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: radial-gradient(ellipse at 50% 38%, transparent 35%, var(--vignette-color) 100%);
+  transition: background 0.3s ease;
+}
+
+/* Panel bevel — applied as ::before on elements that use --panel-bevel */
+.panel-bevel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--panel-bevel);
+  pointer-events: none;
+}

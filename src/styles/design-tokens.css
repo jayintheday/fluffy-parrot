@@ -25,6 +25,8 @@
 
   --panel-border:   #2a2a2a;
   --panel-shadow:   inset 0 1px 0 #2a2a2a, inset 0 -1px 0 #060606;
+  --panel-bevel:    rgba(255, 255, 255, 0.04);
+  --vignette-color: rgba(0, 0, 0, 0);
 
   --diff-add:       #00ff88;
   --diff-add-bg:    rgba(0, 255, 136, 0.12);
@@ -37,4 +39,46 @@
 
   --knob-size: 64px;
   --knob-face: radial-gradient(circle at 38% 32%, #2e2e2e 0%, #1a1a1a 60%, #111 100%);
+}
+
+/* ── Variant A: Brushed Titanium ─────────────────────────────────────────── */
+/* Warm grey — like matte anodized aluminum under tungsten studio light       */
+[data-theme="titanium"] {
+  --bg-base:      linear-gradient(180deg, #161513 0%, #0c0c0b 40%, #080807 100%);
+  --bg-panel:     linear-gradient(180deg, #1e1d1a 0%, #141311 60%, #0f0f0e 100%);
+  --bg-elevated:  #242320;
+  --bg-display:   #07100e;
+  --panel-border: #333128;
+  --panel-shadow: inset 0 1px 0 rgba(255,245,220,0.07), inset 0 -1px 0 #040403;
+  --panel-bevel:  rgba(255, 245, 210, 0.06);
+  --vignette-color: rgba(4, 3, 2, 0.4);
+  --knob-face:    radial-gradient(circle at 35% 28%, #34322c 0%, #1e1c14 55%, #131210 100%);
+}
+
+/* ── Variant B: Cold Steel ────────────────────────────────────────────────── */
+/* Cool blue-slate — like a brushed steel synth chassis under cold white LEDs */
+[data-theme="cold-steel"] {
+  --bg-base:      linear-gradient(150deg, #10121c 0%, #090a10 45%, #060709 100%);
+  --bg-panel:     linear-gradient(180deg, #161828 0%, #0f1018 60%, #0b0c14 100%);
+  --bg-elevated:  #1c1e30;
+  --bg-display:   #050c12;
+  --panel-border: #262940;
+  --panel-shadow: inset 0 1px 0 rgba(180,200,255,0.07), inset 0 -1px 0 #030405;
+  --panel-bevel:  rgba(160, 190, 255, 0.07);
+  --vignette-color: rgba(2, 3, 10, 0.45);
+  --knob-face:    radial-gradient(circle at 35% 28%, #26283c 0%, #181a26 55%, #0e1018 100%);
+}
+
+/* ── Variant C: Warm Gunmetal ─────────────────────────────────────────────── */
+/* Warm bronze-black — like vintage Moog/Roland panel enamel under amber LEDs */
+[data-theme="gunmetal"] {
+  --bg-base:      linear-gradient(180deg, #140f07 0%, #0c0805 45%, #090704 100%);
+  --bg-panel:     linear-gradient(180deg, #1e1409 0%, #141009 60%, #100c06 100%);
+  --bg-elevated:  #221810;
+  --bg-display:   #080e07;
+  --panel-border: #352614;
+  --panel-shadow: inset 0 1px 0 rgba(255,200,100,0.07), inset 0 -1px 0 #040200;
+  --panel-bevel:  rgba(255, 190, 80, 0.06);
+  --vignette-color: rgba(8, 4, 0, 0.45);
+  --knob-face:    radial-gradient(circle at 35% 28%, #2c2014 0%, #1a1208 55%, #110d06 100%);
 }

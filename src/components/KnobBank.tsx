@@ -56,7 +56,8 @@ export function KnobBank({ params, onChange }: KnobBankProps) {
   )
 
   return (
-    <div style={{
+    <div className="panel-bevel" style={{
+      position: 'relative',
       display: 'flex',
       alignItems: 'center',
       gap: 20,

@@ -9,6 +9,7 @@ import { DiffView } from './components/DiffView'
 import { InputBar } from './components/InputBar'
 import { LEDIndicator } from './components/LEDIndicator'
 import { APIKeySetup } from './components/APIKeySetup'
+import { ThemeSwitcher } from './components/ThemeSwitcher'
 import { useRuns } from './hooks/useRuns'
 import { computeCost, formatCost } from './lib/pricing'
 import type { Attachment, ClaudeParams, LEDState } from './types'
@@ -110,9 +111,12 @@ export function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg-base)' }}>
+      <div className="vignette-overlay" />
       {/* Header */}
       <div
+        className="panel-bevel"
         style={{
+          position: 'relative',
           display: 'flex',
           alignItems: 'center',
           gap: 16,
@@ -136,6 +140,8 @@ export function App() {
         </div>
 
         <div style={{ flex: 1 }} />
+
+        <ThemeSwitcher />
 
         {runs.length > 0 && (
           <span style={{ color: 'var(--accent)', fontSize: 9, letterSpacing: '0.1em' }} title="Total cost this session">

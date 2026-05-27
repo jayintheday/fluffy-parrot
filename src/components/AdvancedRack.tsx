@@ -194,7 +194,7 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
   const setTool = (k: keyof ClaudeParams['tools']) => set('tools', { ...params.tools, [k]: !params.tools[k] })
 
   return (
-    <div style={{ background: 'var(--bg-panel)', borderBottom: '1px solid var(--panel-border)' }}>
+    <div className="panel-bevel" style={{ position: 'relative', background: 'var(--bg-panel)', borderBottom: '1px solid var(--panel-border)' }}>
       <div
         onClick={() => setOpen(o => !o)}
         style={{
