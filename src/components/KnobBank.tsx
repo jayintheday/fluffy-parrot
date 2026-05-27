@@ -1,10 +1,44 @@
 import React, { useCallback } from 'react'
 import { Knob } from './Knob'
+import { ModelSelector } from './ModelSelector'
 import type { ClaudeParams } from '../types'
 
 interface KnobBankProps {
   params: ClaudeParams
   onChange: (params: ClaudeParams) => void
+}
+
+// Claude logomark — radial burst rendered in the panel accent.
+function BrandLogo() {
+  const size = 44
+  const c = size / 2
+  const rays = 12
+  const inner = 3.5
+  const outer = c - 3
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      <svg width={size} height={size} style={{ overflow: 'visible', filter: 'drop-shadow(0 0 5px var(--accent-glow))' }}>
+        {Array.from({ length: rays }, (_, i) => {
+          const a = (i / rays) * Math.PI * 2 - Math.PI / 2
+          const len = outer * (i % 2 === 0 ? 1 : 0.72)
+          return (
+            <line
+              key={i}
+              x1={c + Math.cos(a) * inner}
+              y1={c + Math.sin(a) * inner}
+              x2={c + Math.cos(a) * len}
+              y2={c + Math.sin(a) * len}
+              stroke="var(--accent)"
+              strokeWidth={2.4}
+              strokeLinecap="round"
+            />
+          )
+        })}
+        <circle cx={c} cy={c} r={2} fill="var(--accent)" />
+      </svg>
+      <span style={{ color: 'var(--text-dim)', fontSize: 9, letterSpacing: '0.15em' }}>CLAUDE</span>
+    </div>
+  )
 }
 
 export function KnobBank({ params, onChange }: KnobBankProps) {
@@ -31,11 +65,18 @@ export function KnobBank({ params, onChange }: KnobBankProps) {
       borderBottom: '1px solid var(--panel-border)',
       boxShadow: 'var(--panel-shadow)'
     }}>
+      <BrandLogo />
+      {divider}
+      <ModelSelector
+        value={params.model}
+        onChange={model => set('model', model)}
+      />
+      {divider}
       <Knob
         label="TEMP"
         value={params.temperature}
-        min={0} max={2} defaultValue={1} step={0.01}
-        hot={params.temperature > 1.5}
+        min={0} max={1} defaultValue={1} step={0.01}
+        hot={params.temperature > 0.85}
         onChange={v => set('temperature', Math.round(v * 100) / 100)}
       />
       {divider}

@@ -5,10 +5,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveKey: (key: string): Promise<boolean> => ipcRenderer.invoke('api:saveKey', key),
   sendMessage: (payload: object): Promise<{ text: string; inputTokens: number; outputTokens: number } | null> =>
     ipcRenderer.invoke('api:sendMessage', payload),
-  onChunk: (cb: (delta: string) => void) => {
-    const handler = (_: Electron.IpcRendererEvent, data: { delta: string }) => cb(data.delta)
-    ipcRenderer.on('api:chunk', handler)
-    return () => ipcRenderer.off('api:chunk', handler)
+  onStreamEvent: (cb: (ev: unknown) => void) => {
+    const handler = (_: Electron.IpcRendererEvent, data: unknown) => cb(data)
+    ipcRenderer.on('api:stream', handler)
+    return () => ipcRenderer.off('api:stream', handler)
   },
   onDone: (cb: (usage: { inputTokens: number; outputTokens: number }) => void) => {
     const handler = (_: Electron.IpcRendererEvent, data: { inputTokens: number; outputTokens: number }) => cb(data)

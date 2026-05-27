@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { KnobBank } from './components/KnobBank'
-import { ModelSelector } from './components/ModelSelector'
+import { AdvancedRack } from './components/AdvancedRack'
 import { Display } from './components/Display'
 import { ConversationView } from './components/ConversationView'
 import { InputBar } from './components/InputBar'
 import { LEDIndicator } from './components/LEDIndicator'
 import { APIKeySetup } from './components/APIKeySetup'
 import { useClaude } from './hooks/useClaude'
-import type { ClaudeParams, LEDState } from './types'
+import type { Attachment, ClaudeParams, LEDState } from './types'
 import './styles/global.css'
 
 const DEFAULT_PARAMS: ClaudeParams = {
@@ -17,7 +17,18 @@ const DEFAULT_PARAMS: ClaudeParams = {
   topK: 0,
   maxTokens: 2048,
   stream: true,
-  systemPrompt: ''
+  systemPrompt: '',
+  stopSequences: [],
+  thinkingEnabled: false,
+  thinkingBudget: 4096,
+  effort: 'off',
+  serviceTier: 'auto',
+  userId: '',
+  cacheEnabled: false,
+  tools: { webSearch: false, codeExec: false, webFetch: false },
+  toolChoice: 'auto',
+  container: '',
+  inferenceGeo: ''
 }
 
 export function App() {
@@ -34,8 +45,8 @@ export function App() {
     setHasKey(true)
   }
 
-  const handleSend = (text: string) => {
-    sendMessage(text, params)
+  const handleSend = (text: string, attachments: Attachment[]) => {
+    sendMessage(text, attachments, params)
   }
 
   const ledState: LEDState = !hasKey ? 'off' : streaming ? 'amber' : 'green'
@@ -85,13 +96,6 @@ export function App() {
 
         <div style={{ flex: 1 }} />
 
-        <div style={{ WebkitAppRegion: 'no-drag' as never }}>
-          <ModelSelector
-            value={params.model}
-            onChange={model => setParams(p => ({ ...p, model }))}
-          />
-        </div>
-
         {messages.length > 0 && (
           <button
             onClick={clearMessages}
@@ -116,6 +120,7 @@ export function App() {
       {/* Knob bank */}
       <div style={{ flexShrink: 0 }}>
         <KnobBank params={params} onChange={setParams} />
+        <AdvancedRack params={params} onChange={setParams} />
       </div>
 
       {/* Main content */}
