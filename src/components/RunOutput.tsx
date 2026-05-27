@@ -3,6 +3,7 @@ import type { Run } from '../types'
 import { BlockView, AttachmentChips } from './Blocks'
 import { paramsSummary } from '../lib/runFormat'
 import { computeCost, formatCost } from '../lib/pricing'
+import { downloadRunSettings } from '../lib/apiRequest'
 
 interface RunOutputProps {
   run: Run | null
@@ -69,12 +70,28 @@ export function RunOutput({ run }: RunOutputProps) {
         }}
       >
         <span>RUN {run.index} · {run.status.toUpperCase()}</span>
-        <span>
-          {tokenUsage.input > 0 && `IN:${tokenUsage.input} `}
-          {tokenUsage.output > 0 && `OUT:${tokenUsage.output} `}
-          <span style={{ color: 'var(--accent)' }}>
-            · {streaming ? '—' : formatCost(computeCost(run))}
+        <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span>
+            {tokenUsage.input > 0 && `IN:${tokenUsage.input} `}
+            {tokenUsage.output > 0 && `OUT:${tokenUsage.output} `}
+            <span style={{ color: 'var(--accent)' }}>· {streaming ? '—' : formatCost(computeCost(run))}</span>
           </span>
+          <button
+            onClick={() => downloadRunSettings(run)}
+            title="Download this run's API settings as JSON"
+            style={{
+              background: 'none',
+              border: '1px solid var(--panel-border)',
+              color: 'var(--accent)',
+              font: 'inherit',
+              fontSize: 8,
+              letterSpacing: '0.15em',
+              padding: '3px 7px',
+              cursor: 'pointer'
+            }}
+          >
+            ⤓ JSON
+          </button>
         </span>
       </div>
 
