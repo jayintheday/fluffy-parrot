@@ -225,19 +225,20 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
           }}
         >
           <Toggle on={params.thinkingEnabled} label="THINK" onClick={() => set('thinkingEnabled', !params.thinkingEnabled)} />
-          {params.thinkingEnabled && (
-            <Knob
-              label="BUDGET"
-              value={params.thinkingBudget}
-              min={1024}
-              max={32000}
-              defaultValue={4096}
-              step={256}
-              size={52}
-              unit="tok"
-              onChange={v => set('thinkingBudget', Math.round(v / 256) * 256)}
-            />
-          )}
+          <Knob
+            label="BUDGET"
+            value={params.thinkingBudget}
+            min={1024}
+            max={32000}
+            defaultValue={4096}
+            step={256}
+            size={52}
+            unit="tok"
+            onChange={v => {
+              const budget = Math.round(v / 256) * 256
+              onChange({ ...params, thinkingBudget: budget, thinkingEnabled: budget > 1024 })
+            }}
+          />
           {divider}
           <Cycle label="EFFORT" value={params.effort} onClick={cycleEffort} />
           {divider}
