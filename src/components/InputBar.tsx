@@ -1,9 +1,13 @@
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import type { Attachment } from '../types'
 
 interface InputBarProps {
   disabled: boolean
-  onSubmit: (text: string, attachments: Attachment[]) => void
+  value: string
+  attachments: Attachment[]
+  onChange: (v: string) => void
+  onAttachmentsChange: (a: Attachment[]) => void
+  onSubmit: () => void
 }
 
 function readBase64(file: File): Promise<string> {
@@ -15,9 +19,7 @@ function readBase64(file: File): Promise<string> {
   })
 }
 
-export function InputBar({ disabled, onSubmit }: InputBarProps) {
-  const [value, setValue] = useState('')
-  const [attachments, setAttachments] = useState<Attachment[]>([])
+export function InputBar({ disabled, value, attachments, onChange, onAttachmentsChange, onSubmit }: InputBarProps) {
   const [pressed, setPressed] = useState(false)
   const ref = useRef<HTMLTextAreaElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -26,10 +28,8 @@ export function InputBar({ disabled, onSubmit }: InputBarProps) {
 
   const handleSubmit = useCallback(() => {
     if (!canSend) return
-    onSubmit(value.trim(), attachments)
-    setValue('')
-    setAttachments([])
-  }, [canSend, value, attachments, onSubmit])
+    onSubmit()
+  }, [canSend, onSubmit])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -41,21 +41,24 @@ export function InputBar({ disabled, onSubmit }: InputBarProps) {
     [handleSubmit]
   )
 
-  const handleFiles = useCallback(async (files: FileList | null) => {
-    if (!files) return
-    const next: Attachment[] = []
-    for (const file of Array.from(files)) {
-      const data = await readBase64(file)
-      if (!data) continue
-      if (file.type === 'application/pdf') {
-        next.push({ kind: 'pdf', mediaType: 'application/pdf', data, name: file.name })
-      } else if (file.type.startsWith('image/')) {
-        next.push({ kind: 'image', mediaType: file.type, data, name: file.name })
+  const handleFiles = useCallback(
+    async (files: FileList | null) => {
+      if (!files) return
+      const next: Attachment[] = []
+      for (const file of Array.from(files)) {
+        const data = await readBase64(file)
+        if (!data) continue
+        if (file.type === 'application/pdf') {
+          next.push({ kind: 'pdf', mediaType: 'application/pdf', data, name: file.name })
+        } else if (file.type.startsWith('image/')) {
+          next.push({ kind: 'image', mediaType: file.type, data, name: file.name })
+        }
       }
-    }
-    setAttachments(prev => [...prev, ...next])
-    if (fileRef.current) fileRef.current.value = ''
-  }, [])
+      onAttachmentsChange([...attachments, ...next])
+      if (fileRef.current) fileRef.current.value = ''
+    },
+    [attachments, onAttachmentsChange]
+  )
 
   return (
     <div
@@ -74,7 +77,7 @@ export function InputBar({ disabled, onSubmit }: InputBarProps) {
           {attachments.map((a, i) => (
             <span
               key={i}
-              onClick={() => setAttachments(prev => prev.filter((_, j) => j !== i))}
+              onClick={() => onAttachmentsChange(attachments.filter((_, j) => j !== i))}
               title="Click to remove"
               style={{
                 display: 'flex',
@@ -133,7 +136,7 @@ export function InputBar({ disabled, onSubmit }: InputBarProps) {
           <textarea
             ref={ref}
             value={value}
-            onChange={e => setValue(e.target.value)}
+            onChange={e => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled}
             placeholder="> input"
@@ -192,7 +195,7 @@ export function InputBar({ disabled, onSubmit }: InputBarProps) {
             alignSelf: 'stretch'
           }}
         >
-          SEND
+          RUN
         </button>
       </div>
     </div>

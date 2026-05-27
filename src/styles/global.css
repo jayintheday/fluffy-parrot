@@ -24,6 +24,13 @@ html, body, #root {
   cursor: ns-resize !important;
 }
 
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* Allow selecting model output / diff text */
+.selectable, .selectable * {
+  user-select: text;
+}
+
 ::-webkit-scrollbar {
   width: 4px;
 }

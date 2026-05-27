@@ -26,6 +26,13 @@
   --panel-border:   #2a2a2a;
   --panel-shadow:   inset 0 1px 0 #2a2a2a, inset 0 -1px 0 #060606;
 
+  --diff-add:       #00ff88;
+  --diff-add-bg:    rgba(0, 255, 136, 0.12);
+  --diff-add-strong:rgba(0, 255, 136, 0.30);
+  --diff-del:       #ff3333;
+  --diff-del-bg:    rgba(255, 51, 51, 0.12);
+  --diff-del-strong:rgba(255, 51, 51, 0.30);
+
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
 
   --knob-size: 64px;

@@ -47,6 +47,20 @@ export interface TokenUsage {
   output: number
 }
 
+export type RunStatus = 'streaming' | 'done' | 'error'
+
+export interface Run {
+  id: string
+  index: number
+  params: ClaudeParams
+  systemPrompt: string
+  input: { text: string; attachments: Attachment[] }
+  output: ContentBlock[]
+  tokenUsage: TokenUsage
+  status: RunStatus
+  createdAt: number
+}
+
 export type LEDState = 'off' | 'green' | 'amber' | 'red'
 
 export type StreamEvent =

@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { KnobBank } from './components/KnobBank'
 import { AdvancedRack } from './components/AdvancedRack'
 import { Display } from './components/Display'
-import { ConversationView } from './components/ConversationView'
+import { RunTabs } from './components/RunTabs'
+import { RunOutput } from './components/RunOutput'
+import { DiffView } from './components/DiffView'
 import { InputBar } from './components/InputBar'
 import { LEDIndicator } from './components/LEDIndicator'
 import { APIKeySetup } from './components/APIKeySetup'
-import { useClaude } from './hooks/useClaude'
+import { useRuns } from './hooks/useRuns'
 import type { Attachment, ClaudeParams, LEDState } from './types'
 import './styles/global.css'
 
@@ -33,72 +35,102 @@ const DEFAULT_PARAMS: ClaudeParams = {
 
 export function App() {
   const [params, setParams] = useState<ClaudeParams>(DEFAULT_PARAMS)
+  const [inputText, setInputText] = useState('')
+  const [inputAttachments, setInputAttachments] = useState<Attachment[]>([])
   const [hasKey, setHasKey] = useState<boolean | null>(null)
-  const { messages, streaming, tokenUsage, sendMessage, clearMessages } = useClaude()
+
+  const { runs, activeRunId, streaming, runPrompt, selectRun, deleteRun, clearRuns } = useRuns()
+
+  const [comparing, setComparing] = useState(false)
+  const [compareA, setCompareA] = useState<string | null>(null)
+  const [compareB, setCompareB] = useState<string | null>(null)
 
   useEffect(() => {
     window.electronAPI.hasKey().then(setHasKey)
   }, [])
+
+  // Keep the compare selections valid; exit compare if fewer than 2 runs remain.
+  useEffect(() => {
+    if (!comparing) return
+    if (runs.length < 2) {
+      setComparing(false)
+      return
+    }
+    setCompareA(a => (runs.some(r => r.id === a) ? a : runs[runs.length - 2].id))
+    setCompareB(b => (runs.some(r => r.id === b) ? b : runs[runs.length - 1].id))
+  }, [comparing, runs])
 
   const handleSaveKey = async (key: string) => {
     await window.electronAPI.saveKey(key)
     setHasKey(true)
   }
 
-  const handleSend = (text: string, attachments: Attachment[]) => {
-    sendMessage(text, attachments, params)
+  const handleRun = () => {
+    setComparing(false)
+    runPrompt(params.systemPrompt, { text: inputText.trim(), attachments: inputAttachments }, params)
   }
 
+  const toggleCompare = useCallback(() => {
+    setComparing(c => {
+      const next = !c
+      if (next && runs.length >= 2) {
+        setCompareA(runs[runs.length - 2].id)
+        setCompareB(runs[runs.length - 1].id)
+      }
+      return next
+    })
+  }, [runs])
+
+  const loadIntoComposer = useCallback(
+    (id: string) => {
+      const run = runs.find(r => r.id === id)
+      if (!run) return
+      setParams(run.params)
+      setInputText(run.input.text)
+      setInputAttachments(run.input.attachments)
+      setComparing(false)
+      selectRun(id)
+    },
+    [runs, selectRun]
+  )
+
   const ledState: LEDState = !hasKey ? 'off' : streaming ? 'amber' : 'green'
+  const activeRun = runs.find(r => r.id === activeRunId) ?? null
 
   if (hasKey === null) return null // loading
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100vh',
-      background: 'var(--bg-base)'
-    }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg-base)' }}>
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 16,
-        padding: '10px 20px',
-        background: 'var(--bg-panel)',
-        borderBottom: '1px solid var(--panel-border)',
-        boxShadow: 'var(--panel-shadow)',
-        WebkitAppRegion: 'drag' as never,
-        flexShrink: 0
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+          padding: '10px 20px',
+          background: 'var(--bg-panel)',
+          borderBottom: '1px solid var(--panel-border)',
+          boxShadow: 'var(--panel-shadow)',
+          WebkitAppRegion: 'drag' as never,
+          flexShrink: 0
+        }}
+      >
         {/* macOS traffic lights space */}
         <div style={{ width: 60 }} />
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <LEDIndicator state={ledState} pulse={streaming} />
-          <span style={{
-            color: 'var(--accent)',
-            fontSize: 11,
-            letterSpacing: '0.3em',
-            fontWeight: 500
-          }}>
+          <span style={{ color: 'var(--accent)', fontSize: 11, letterSpacing: '0.3em', fontWeight: 500 }}>
             FLUFFY PARROT
           </span>
-          <span style={{
-            color: 'var(--text-dim)',
-            fontSize: 8,
-            letterSpacing: '0.1em'
-          }}>
-            v0.1
-          </span>
+          <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em' }}>v0.1</span>
         </div>
 
         <div style={{ flex: 1 }} />
 
-        {messages.length > 0 && (
+        {runs.length > 0 && (
           <button
-            onClick={clearMessages}
+            onClick={clearRuns}
             style={{
               WebkitAppRegion: 'no-drag' as never,
               background: 'none',
@@ -110,9 +142,9 @@ export function App() {
               padding: '4px 8px',
               cursor: 'pointer'
             }}
-            title="Clear conversation"
+            title="Clear all runs"
           >
-            CLR
+            CLR ALL
           </button>
         )}
       </div>
@@ -123,27 +155,50 @@ export function App() {
         <AdvancedRack params={params} onChange={setParams} />
       </div>
 
+      {/* Run tabs */}
+      {runs.length > 0 && (
+        <div style={{ flexShrink: 0 }}>
+          <RunTabs
+            runs={runs}
+            activeRunId={activeRunId}
+            comparing={comparing}
+            onSelect={selectRun}
+            onDelete={deleteRun}
+            onLoad={loadIntoComposer}
+            onToggleCompare={toggleCompare}
+          />
+        </div>
+      )}
+
       {/* Main content */}
-      <div style={{
-        flex: 1,
-        display: 'grid',
-        gridTemplateColumns: '280px 1fr',
-        minHeight: 0
-      }}>
-        <Display
-          value={params.systemPrompt}
-          onChange={sp => setParams(p => ({ ...p, systemPrompt: sp }))}
-        />
-        <ConversationView
-          messages={messages}
-          tokenUsage={tokenUsage}
-          maxTokens={params.maxTokens}
-        />
+      <div
+        style={{
+          flex: 1,
+          display: 'grid',
+          gridTemplateColumns: '280px 1fr',
+          gridTemplateRows: 'minmax(0, 1fr)',
+          minHeight: 0,
+          overflow: 'hidden'
+        }}
+      >
+        <Display value={params.systemPrompt} onChange={sp => setParams(p => ({ ...p, systemPrompt: sp }))} />
+        {comparing ? (
+          <DiffView runs={runs} aId={compareA} bId={compareB} onChangeA={setCompareA} onChangeB={setCompareB} />
+        ) : (
+          <RunOutput run={activeRun} />
+        )}
       </div>
 
       {/* Input */}
       <div style={{ flexShrink: 0 }}>
-        <InputBar disabled={streaming || !hasKey} onSubmit={handleSend} />
+        <InputBar
+          disabled={streaming || !hasKey}
+          value={inputText}
+          attachments={inputAttachments}
+          onChange={setInputText}
+          onAttachmentsChange={setInputAttachments}
+          onSubmit={handleRun}
+        />
       </div>
 
       {!hasKey && <APIKeySetup onSave={handleSaveKey} />}
