@@ -101,6 +101,7 @@ function TextField({
           font: 'inherit',
           fontSize: 10,
           padding: '3px 6px',
+          textAlign: 'center',
           outline: 'none',
           boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)'
         }}
@@ -157,6 +158,7 @@ function StopSeqField({ value, onChange }: { value: string[]; onChange: (v: stri
             font: 'inherit',
             fontSize: 10,
             padding: '3px 6px',
+            textAlign: 'center',
             outline: 'none',
             boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)'
           }}

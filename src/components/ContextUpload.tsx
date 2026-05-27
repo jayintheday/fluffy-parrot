@@ -77,7 +77,11 @@ export function ContextUpload({ files, onAdd, onRemove }: ContextUploadProps) {
   return (
     <div style={{
       borderTop: '1px solid var(--panel-border)',
-      flexShrink: 0
+      flex: 1,
+      minHeight: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
     }}>
       <div style={{
         padding: '6px 10px',
@@ -125,7 +129,8 @@ export function ContextUpload({ files, onAdd, onRemove }: ContextUploadProps) {
       {/* File list */}
       {files.length > 0 && (
         <div style={{
-          maxHeight: 120,
+          flex: 1,
+          minHeight: 0,
           overflowY: 'auto',
           padding: '2px 8px 6px'
         }}>
