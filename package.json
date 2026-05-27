@@ -1,0 +1,37 @@
+{
+  "name": "fluffy-parrot",
+  "version": "0.1.0",
+  "description": "Claude API interface with VST-style hardware UI",
+  "main": "out/main/main.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build && electron-builder",
+    "preview": "electron-vite preview"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^32.2.6",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^2.3.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "build": {
+    "appId": "co.vijay-patel.fluffy-parrot",
+    "productName": "Fluffy Parrot",
+    "mac": {
+      "target": "dmg"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ]
+  }
+}

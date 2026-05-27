@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+
+:root {
+  --bg-base:        #0a0a0a;
+  --bg-panel:       #141414;
+  --bg-elevated:    #1e1e1e;
+  --bg-display:     #060e0e;
+
+  --accent:         #00e5ff;
+  --accent-glow:    rgba(0, 229, 255, 0.35);
+  --accent-warm:    #ff9500;
+  --accent-warm-glow: rgba(255, 149, 0, 0.35);
+
+  --text-bright:    #e8e8e8;
+  --text-mid:       #999;
+  --text-dim:       #444;
+  --text-lcd:       #7ecece;
+
+  --led-green:      #00ff88;
+  --led-green-glow: rgba(0, 255, 136, 0.6);
+  --led-amber:      #ff9500;
+  --led-amber-glow: rgba(255, 149, 0, 0.6);
+  --led-red:        #ff3333;
+  --led-red-glow:   rgba(255, 51, 51, 0.6);
+
+  --panel-border:   #2a2a2a;
+  --panel-shadow:   inset 0 1px 0 #2a2a2a, inset 0 -1px 0 #060606;
+
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  --knob-size: 64px;
+  --knob-face: radial-gradient(circle at 38% 32%, #2e2e2e 0%, #1a1a1a 60%, #111 100%);
+}

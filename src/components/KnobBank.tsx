@@ -1,0 +1,100 @@
+import React, { useCallback } from 'react'
+import { Knob } from './Knob'
+import type { ClaudeParams } from '../types'
+
+interface KnobBankProps {
+  params: ClaudeParams
+  onChange: (params: ClaudeParams) => void
+}
+
+export function KnobBank({ params, onChange }: KnobBankProps) {
+  const set = useCallback(<K extends keyof ClaudeParams>(key: K, value: ClaudeParams[K]) => {
+    onChange({ ...params, [key]: value })
+  }, [params, onChange])
+
+  const divider = (
+    <div style={{
+      width: 1,
+      alignSelf: 'stretch',
+      margin: '8px 0',
+      background: 'linear-gradient(to bottom, transparent, var(--panel-border), transparent)'
+    }} />
+  )
+
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 20,
+      padding: '16px 24px',
+      background: 'var(--bg-panel)',
+      borderBottom: '1px solid var(--panel-border)',
+      boxShadow: 'var(--panel-shadow)'
+    }}>
+      <Knob
+        label="TEMP"
+        value={params.temperature}
+        min={0} max={2} defaultValue={1} step={0.01}
+        hot={params.temperature > 1.5}
+        onChange={v => set('temperature', Math.round(v * 100) / 100)}
+      />
+      {divider}
+      <Knob
+        label="TOP·P"
+        value={params.topP}
+        min={0} max={1} defaultValue={1} step={0.01}
+        onChange={v => set('topP', Math.round(v * 100) / 100)}
+      />
+      {divider}
+      <Knob
+        label="TOP·K"
+        value={params.topK}
+        min={0} max={500} defaultValue={0} step={1}
+        unit={params.topK === 0 ? 'OFF' : undefined}
+        onChange={v => set('topK', Math.round(v))}
+      />
+      {divider}
+      <Knob
+        label="TOKENS"
+        value={params.maxTokens}
+        min={256} max={8192} defaultValue={2048} step={64}
+        unit="tok"
+        hot={params.maxTokens > 7000}
+        onChange={v => set('maxTokens', Math.round(v / 64) * 64)}
+      />
+      {divider}
+
+      {/* Stream toggle */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+        <div
+          onClick={() => set('stream', !params.stream)}
+          style={{
+            width: 28,
+            height: 16,
+            borderRadius: 0,
+            border: `1px solid ${params.stream ? 'var(--accent)' : 'var(--panel-border)'}`,
+            background: params.stream ? 'var(--accent)' : 'var(--bg-elevated)',
+            cursor: 'pointer',
+            position: 'relative',
+            boxShadow: params.stream ? '0 0 8px var(--accent-glow)' : 'inset 0 1px 3px rgba(0,0,0,0.5)',
+            transition: 'all 0.1s'
+          }}
+          title="Toggle streaming"
+        >
+          <div style={{
+            position: 'absolute',
+            top: 2,
+            left: params.stream ? 14 : 2,
+            width: 10,
+            height: 10,
+            background: params.stream ? '#fff' : 'var(--text-dim)',
+            transition: 'left 0.1s'
+          }} />
+        </div>
+        <span style={{ color: params.stream ? 'var(--accent)' : 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em' }}>
+          STREAM
+        </span>
+      </div>
+    </div>
+  )
+}
