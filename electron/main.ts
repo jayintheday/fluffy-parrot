@@ -109,6 +109,17 @@ interface SendPayload {
   messages: Array<{ role: 'user' | 'assistant'; content: unknown }>
 }
 
+// Normalize an API usage object into the renderer's token-usage shape (incl. cache + web search).
+function extractUsage(usage: any) {
+  return {
+    inputTokens: usage?.input_tokens ?? 0,
+    outputTokens: usage?.output_tokens ?? 0,
+    cacheWriteTokens: usage?.cache_creation_input_tokens ?? 0,
+    cacheReadTokens: usage?.cache_read_input_tokens ?? 0,
+    webSearches: usage?.server_tool_use?.web_search_requests ?? 0
+  }
+}
+
 // Map an API content block into the renderer's flat ContentBlock shape.
 function mapBlock(b: any): { type: string; text?: string; name?: string; input?: string; result?: string } {
   if (b.type === 'text') return { type: 'text', text: b.text }
@@ -180,7 +191,7 @@ ipcMain.handle('api:sendMessage', async (event, payload: SendPayload) => {
   if (!payload.stream) {
     const response = await client.messages.create({ ...buildParams, stream: false } as any)
     const blocks = (response.content as any[]).map(mapBlock)
-    return { blocks, inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens }
+    return { blocks, ...extractUsage(response.usage) }
   }
 
   // streaming
@@ -211,9 +222,6 @@ ipcMain.handle('api:sendMessage', async (event, payload: SendPayload) => {
     }
   }
   const final = await stream.finalMessage()
-  event.sender.send('api:done', {
-    inputTokens: final.usage.input_tokens,
-    outputTokens: final.usage.output_tokens
-  })
+  event.sender.send('api:done', extractUsage(final.usage))
   return null
 })

@@ -9,6 +9,7 @@ import { InputBar } from './components/InputBar'
 import { LEDIndicator } from './components/LEDIndicator'
 import { APIKeySetup } from './components/APIKeySetup'
 import { useRuns } from './hooks/useRuns'
+import { computeCost, formatCost } from './lib/pricing'
 import type { Attachment, ClaudeParams, LEDState } from './types'
 import './styles/global.css'
 
@@ -96,6 +97,7 @@ export function App() {
 
   const ledState: LEDState = !hasKey ? 'off' : streaming ? 'amber' : 'green'
   const activeRun = runs.find(r => r.id === activeRunId) ?? null
+  const sessionTotal = runs.reduce((sum, r) => sum + (computeCost(r) ?? 0), 0)
 
   if (hasKey === null) return null // loading
 
@@ -127,6 +129,12 @@ export function App() {
         </div>
 
         <div style={{ flex: 1 }} />
+
+        {runs.length > 0 && (
+          <span style={{ color: 'var(--accent)', fontSize: 9, letterSpacing: '0.1em' }} title="Total cost this session">
+            Σ {formatCost(sessionTotal)}
+          </span>
+        )}
 
         {runs.length > 0 && (
           <button

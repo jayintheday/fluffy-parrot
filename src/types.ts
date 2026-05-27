@@ -45,6 +45,17 @@ export interface Message {
 export interface TokenUsage {
   input: number
   output: number
+  cacheWrite?: number
+  cacheRead?: number
+  webSearches?: number
+}
+
+export interface DoneUsage {
+  inputTokens: number
+  outputTokens: number
+  cacheWriteTokens: number
+  cacheReadTokens: number
+  webSearches: number
 }
 
 export type RunStatus = 'streaming' | 'done' | 'error'
@@ -73,11 +84,9 @@ declare global {
     electronAPI: {
       hasKey: () => Promise<boolean>
       saveKey: (key: string) => Promise<boolean>
-      sendMessage: (
-        payload: object
-      ) => Promise<{ blocks: ContentBlock[]; inputTokens: number; outputTokens: number } | null>
+      sendMessage: (payload: object) => Promise<({ blocks: ContentBlock[] } & DoneUsage) | null>
       onStreamEvent: (cb: (ev: StreamEvent) => void) => () => void
-      onDone: (cb: (usage: { inputTokens: number; outputTokens: number }) => void) => () => void
+      onDone: (cb: (usage: DoneUsage) => void) => () => void
     }
   }
 }

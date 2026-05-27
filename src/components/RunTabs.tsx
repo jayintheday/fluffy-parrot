@@ -1,5 +1,6 @@
 import React from 'react'
 import type { Run, RunStatus } from '../types'
+import { computeCost, formatCost } from '../lib/pricing'
 
 interface RunTabsProps {
   runs: Run[]
@@ -65,6 +66,9 @@ export function RunTabs({ runs, activeRunId, comparing, onSelect, onDelete, onLo
               <span style={{ color: active ? 'var(--accent)' : 'var(--text-mid)', fontSize: 9, letterSpacing: '0.1em' }}>
                 RUN {run.index}
               </span>
+              {run.status === 'done' && (
+                <span style={{ color: 'var(--text-dim)', fontSize: 8 }}>{formatCost(computeCost(run))}</span>
+              )}
               <span
                 onClick={e => {
                   e.stopPropagation()

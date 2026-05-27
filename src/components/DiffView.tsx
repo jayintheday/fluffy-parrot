@@ -2,6 +2,7 @@ import React from 'react'
 import { diffLines, diffWords } from 'diff'
 import type { Run } from '../types'
 import { runText, diffParams } from '../lib/runFormat'
+import { computeCost, formatCost } from '../lib/pricing'
 
 interface DiffViewProps {
   runs: Run[]
@@ -213,6 +214,12 @@ export function DiffView({ runs, aId, bId, onChangeA, onChangeB }: DiffViewProps
       >
         <div style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.2em', marginBottom: 4 }}>
           WHAT CHANGED — RUN {runA.index} → RUN {runB.index}
+        </div>
+        <div style={{ display: 'flex', gap: 8, fontSize: 10, marginBottom: 4 }}>
+          <span style={{ color: 'var(--text-mid)' }}>cost</span>
+          <span style={{ color: 'var(--diff-del)' }}>{formatCost(computeCost(runA))}</span>
+          <span style={{ color: 'var(--text-dim)' }}>→</span>
+          <span style={{ color: 'var(--diff-add)' }}>{formatCost(computeCost(runB))}</span>
         </div>
         {deltas.length === 0 ? (
           <span style={{ color: 'var(--text-dim)', fontSize: 10 }}>identical settings</span>

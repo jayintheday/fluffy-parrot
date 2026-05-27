@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import type { Run } from '../types'
 import { BlockView, AttachmentChips } from './Blocks'
 import { paramsSummary } from '../lib/runFormat'
+import { computeCost, formatCost } from '../lib/pricing'
 
 interface RunOutputProps {
   run: Run | null
@@ -70,7 +71,10 @@ export function RunOutput({ run }: RunOutputProps) {
         <span>RUN {run.index} · {run.status.toUpperCase()}</span>
         <span>
           {tokenUsage.input > 0 && `IN:${tokenUsage.input} `}
-          {tokenUsage.output > 0 && `OUT:${tokenUsage.output}`}
+          {tokenUsage.output > 0 && `OUT:${tokenUsage.output} `}
+          <span style={{ color: 'var(--accent)' }}>
+            · {streaming ? '—' : formatCost(computeCost(run))}
+          </span>
         </span>
       </div>
 

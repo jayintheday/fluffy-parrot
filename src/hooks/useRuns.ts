@@ -100,7 +100,13 @@ export function useRuns() {
           patchRun(id, r => ({
             ...r,
             status: 'done',
-            tokenUsage: { input: usage.inputTokens, output: usage.outputTokens }
+            tokenUsage: {
+              input: usage.inputTokens,
+              output: usage.outputTokens,
+              cacheWrite: usage.cacheWriteTokens,
+              cacheRead: usage.cacheReadTokens,
+              webSearches: usage.webSearches
+            }
           }))
           setStreaming(false)
           unsubStream()
@@ -124,7 +130,13 @@ export function useRuns() {
               ...r,
               status: 'done',
               output: result.blocks,
-              tokenUsage: { input: result.inputTokens, output: result.outputTokens }
+              tokenUsage: {
+                input: result.inputTokens,
+                output: result.outputTokens,
+                cacheWrite: result.cacheWriteTokens,
+                cacheRead: result.cacheReadTokens,
+                webSearches: result.webSearches
+              }
             }))
           }
         } catch (e) {
