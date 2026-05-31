@@ -1,5 +1,6 @@
 import type { ClaudeParams, Run } from '../types'
 import { computeCost, formatCost } from './pricing'
+import { getModel } from './models'
 
 // NOTE: this mirrors the request builder in electron/main.ts (api:sendMessage).
 // Keep the two in sync — server-tool versions, beta headers, and the temp/top_p
@@ -16,13 +17,24 @@ export function buildApiRequest(p: ClaudeParams): { body: Record<string, unknown
   const topPChanged = p.topP < 0.999
   const body: Record<string, unknown> = { model: p.model, max_tokens: p.maxTokens }
 
-  // Extended thinking forbids temperature/top_p/top_k.
-  if (!thinkingOn) {
+  // Per-model capabilities. Opus 4.7+ reject sampling params and manual thinking (adaptive only);
+  // Haiku 4.5 does not accept the effort parameter. Unknown models fall back to the legacy rules.
+  const cap = getModel(p.model)
+  const mode = cap?.thinkingMode ?? 'manual'
+  const allowsSampling = cap?.allowsSampling ?? true
+  const effortSupported = cap?.effortSupported ?? true
+
+  if (thinkingOn) {
+    if (mode === 'adaptive') body.thinking = { type: 'adaptive', display: 'summarized' }
+    else body.thinking = { type: 'enabled', budget_tokens: p.thinkingBudget }
+  }
+
+  // Sampling params are forbidden when the model rejects them, or alongside manual extended thinking.
+  const omitSampling = !allowsSampling || (thinkingOn && mode === 'manual')
+  if (!omitSampling) {
     if (topPChanged) body.top_p = p.topP
     else body.temperature = p.temperature
     if (p.topK > 0) body.top_k = p.topK
-  } else {
-    body.thinking = { type: 'enabled', budget_tokens: p.thinkingBudget }
   }
 
   if (p.systemPrompt) {
@@ -31,7 +43,7 @@ export function buildApiRequest(p: ClaudeParams): { body: Record<string, unknown
       : p.systemPrompt
   }
   if (p.stopSequences?.length) body.stop_sequences = p.stopSequences
-  if (p.effort && p.effort !== 'off') body.output_config = { effort: p.effort }
+  if (effortSupported && p.effort && p.effort !== 'off') body.output_config = { effort: p.effort }
   if (p.serviceTier === 'standard_only') body.service_tier = 'standard_only'
   if (p.userId) body.metadata = { user_id: p.userId }
   if (p.container) body.container = p.container

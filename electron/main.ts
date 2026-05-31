@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, safeStorage, shell } from 'electron'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
+import { getModel } from '../src/lib/models'
 
 let mainWindow: BrowserWindow | null = null
 let storedApiKey: string | null = null
@@ -139,20 +140,34 @@ ipcMain.handle('api:sendMessage', async (event, payload: SendPayload) => {
   // API rejects having both temperature and top_p — send top_p only when explicitly set below max
   const topPChanged = payload.topP < 0.999
 
+  // Per-model capabilities. Opus 4.7+ reject sampling params and manual thinking (adaptive only);
+  // Haiku 4.5 does not accept the effort parameter. Unknown models fall back to the legacy rules.
+  const cap = getModel(payload.model)
+  const mode = cap?.thinkingMode ?? 'manual'
+  const allowsSampling = cap?.allowsSampling ?? true
+  const effortSupported = cap?.effortSupported ?? true
+
   const buildParams: Record<string, any> = {
     model: payload.model,
     max_tokens: payload.maxTokens,
     messages: payload.messages
   }
 
-  // Extended thinking forbids temperature/top_p/top_k — omit all sampling params when it's on.
-  if (!thinkingOn) {
+  if (thinkingOn) {
+    if (mode === 'adaptive') {
+      buildParams.thinking = { type: 'adaptive', display: 'summarized' }
+    } else {
+      const safeBudget = Math.min(payload.thinkingBudget, payload.maxTokens - 1)
+      buildParams.thinking = { type: 'enabled', budget_tokens: safeBudget }
+    }
+  }
+
+  // Sampling params are forbidden when the model rejects them, or alongside manual extended thinking.
+  const omitSampling = !allowsSampling || (thinkingOn && mode === 'manual')
+  if (!omitSampling) {
     if (topPChanged) buildParams.top_p = payload.topP
     else buildParams.temperature = payload.temperature
     if (payload.topK > 0) buildParams.top_k = payload.topK
-  } else {
-    const safeBudget = Math.min(payload.thinkingBudget, payload.maxTokens - 1)
-    buildParams.thinking = { type: 'enabled', budget_tokens: safeBudget }
   }
 
   if (payload.systemPrompt) {
@@ -161,7 +176,7 @@ ipcMain.handle('api:sendMessage', async (event, payload: SendPayload) => {
       : payload.systemPrompt
   }
   if (payload.stopSequences?.length) buildParams.stop_sequences = payload.stopSequences
-  if (payload.effort && payload.effort !== 'off') buildParams.output_config = { effort: payload.effort }
+  if (effortSupported && payload.effort && payload.effort !== 'off') buildParams.output_config = { effort: payload.effort }
   if (payload.serviceTier === 'standard_only') buildParams.service_tier = 'standard_only'
   if (payload.userId) buildParams.metadata = { user_id: payload.userId }
   if (payload.container) buildParams.container = payload.container

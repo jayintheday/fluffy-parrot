@@ -101,20 +101,14 @@ export function Knob({ value, min, max, defaultValue, step, label, unit, size = 
         onDoubleClick={handleDoubleClick}
         title={`${label}: ${formatValue(value, step)}${unit ? ' ' + unit : ''}\nDouble-click to reset`}
       >
-        <svg width={size} height={size} style={{ overflow: 'visible' }}>
-          {/* Outer recess ring */}
-          <circle
-            cx={cx} cy={cy} r={outerR}
-            fill="none"
-            stroke="#0d0d0d"
-            strokeWidth={3}
-          />
-
+        {/* Layer 1: track, ticks (no outer recess ring — keeps the knob clean
+            against the panel instead of haloed by a dark circle) */}
+        <svg width={size} height={size} style={{ overflow: 'visible', position: 'absolute', top: 0, left: 0 }}>
           {/* Track background */}
           <path
             d={describeArc(cx, cy, trackR, START_ANGLE, END_ANGLE)}
             fill="none"
-            stroke="#1a1a1a"
+            stroke="var(--knob-track, #1a1a1a)"
             strokeWidth={3}
             strokeLinecap="round"
           />
@@ -136,24 +130,30 @@ export function Knob({ value, min, max, defaultValue, step, label, unit, size = 
               key={i}
               x1={t.inner.x} y1={t.inner.y}
               x2={t.outer.x} y2={t.outer.y}
-              stroke={t.isMajor ? '#3a3a3a' : '#222'}
+              stroke={t.isMajor ? 'var(--knob-ticks-major, #3a3a3a)' : 'var(--knob-ticks-minor, #222)'}
               strokeWidth={t.isMajor ? 1.5 : 1}
             />
           ))}
-
-          {/* Knob face */}
-          <circle
-            cx={cx} cy={cy} r={knobR}
-            fill="var(--knob-face)"
-            stroke="#101010"
-            strokeWidth={1}
-          />
+        </svg>
+        {/* Layer 2: knob face — HTML div so CSS gradients from --knob-face render */}
+        <div style={{
+          position: 'absolute',
+          borderRadius: '50%',
+          background: 'var(--knob-face)',
+          border: '1px solid var(--knob-ring, #0d0d0d)',
+          width: knobR * 2,
+          height: knobR * 2,
+          left: cx - knobR,
+          top: cy - knobR,
+          pointerEvents: 'none',
+        }} />
+        {/* Layer 3: highlight, pointer, center dot */}
+        <svg width={size} height={size} style={{ overflow: 'visible', position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}>
           {/* Knob highlight (top-left bevel) */}
           <ellipse
             cx={cx - knobR * 0.2} cy={cy - knobR * 0.25}
             rx={knobR * 0.5} ry={knobR * 0.3}
             fill="rgba(255,255,255,0.04)"
-            style={{ pointerEvents: 'none' }}
           />
 
           {/* Pointer line */}
@@ -172,7 +172,7 @@ export function Knob({ value, min, max, defaultValue, step, label, unit, size = 
           />
 
           {/* Center dot */}
-          <circle cx={cx} cy={cy} r={2} fill="#111" />
+          <circle cx={cx} cy={cy} r={2} fill="var(--knob-center, #111)" />
         </svg>
       </div>
 

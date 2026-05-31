@@ -29,8 +29,8 @@ export function Display({ value, onChange }: DisplayProps) {
         flex: 1,
         background: 'var(--bg-display)',
         margin: 8,
-        border: '1px solid #0f2020',
-        boxShadow: 'inset 0 0 20px rgba(0,229,255,0.03), inset 0 2px 4px rgba(0,0,0,0.8)'
+        border: '1px solid var(--display-border, #0f2020)',
+        boxShadow: 'inset 0 0 20px var(--display-glow, rgba(0,229,255,0.03)), inset 0 2px 4px rgba(0,0,0,0.8)'
       }}>
         {/* Scanlines overlay */}
         <div style={{

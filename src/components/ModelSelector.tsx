@@ -1,10 +1,15 @@
 import React, { useCallback } from 'react'
+import { MODELS as MODEL_REGISTRY } from '../lib/models'
 
-const MODELS = [
-  { id: 'claude-haiku-4-5-20251001', label: 'HAIKU' },
-  { id: 'claude-sonnet-4-6',         label: 'SONNET' },
-  { id: 'claude-opus-4-7',           label: 'OPUS' }
-]
+const MODELS = MODEL_REGISTRY.map(m => ({ id: m.id, label: m.label }))
+
+// Detent angles (degrees from top) spread symmetrically across a 270° arc for any model count.
+function detentPositions(count: number): number[] {
+  if (count <= 1) return [0]
+  const span = 270
+  const step = span / (count - 1)
+  return Array.from({ length: count }, (_, i) => -span / 2 + i * step)
+}
 
 interface ModelSelectorProps {
   value: string
@@ -15,13 +20,16 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
   const currentIdx = MODELS.findIndex(m => m.id === value)
 
   const size = 72
+  // Horizontal padding around the knob, reserving room for the labels that sit
+  // beside it (e.g. "OPUS 4.7"/"OPUS 4.8") so they aren't clipped at the edge.
+  const padX = 100
   const cx = size / 2
   const cy = size / 2
   const outerR = size / 2 - 4
   const knobR = outerR - 10
 
-  // Position labels at -120, 0, +120 degrees from top
-  const positions = [-120, 0, 120]
+  // Detent angles spread symmetrically across the arc, sized to the model count.
+  const positions = detentPositions(MODELS.length)
 
   const handleClick = useCallback((e: React.MouseEvent<SVGElement>) => {
     const rect = (e.currentTarget as SVGElement).getBoundingClientRect()
@@ -52,7 +60,7 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      <div style={{ position: 'relative', width: size + 60, height: size + 20 }}>
+      <div style={{ position: 'relative', width: size + padX, height: size + 20 }}>
         {/* Model labels */}
         {MODELS.map((m, i) => {
           const angle = positions[i]
@@ -64,9 +72,11 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
               onClick={() => onChange(m.id)}
               style={{
                 position: 'absolute',
-                left: labelPos.x + (size + 60) / 2 - size / 2,
+                left: labelPos.x + padX / 2,
                 top: labelPos.y + 10,
                 transform: 'translate(-50%, -50%)',
+                whiteSpace: 'nowrap',
+                textAlign: 'center',
                 fontSize: 8,
                 letterSpacing: '0.1em',
                 color: isActive ? 'var(--accent)' : 'var(--text-dim)',
@@ -83,11 +93,11 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
         <svg
           width={size}
           height={size}
-          style={{ position: 'absolute', left: (60) / 2, top: 10, cursor: 'pointer', overflow: 'visible' }}
+          style={{ position: 'absolute', left: padX / 2, top: 10, cursor: 'pointer', overflow: 'visible' }}
           onClick={handleClick}
         >
-          {/* Outer ring */}
-          <circle cx={cx} cy={cy} r={outerR} fill="#0d0d0d" stroke="#1a1a1a" strokeWidth={1.5} />
+          {/* Layer 1: detent marks only. No outer ring circle — the knob face
+              sits directly on the panel for a clean, halo-free look. */}
 
           {/* Detent marks */}
           {positions.map((angle, i) => {
@@ -97,16 +107,31 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
               <line
                 key={i}
                 x1={inner.x} y1={inner.y} x2={outer.x} y2={outer.y}
-                stroke={i === currentIdx ? 'var(--accent)' : '#2a2a2a'}
+                stroke={i === currentIdx ? 'var(--accent)' : 'var(--knob-ticks-major, #2a2a2a)'}
                 strokeWidth={2}
                 strokeLinecap="round"
               />
             )
           })}
-
-          {/* Knob face */}
-          <circle cx={cx} cy={cy} r={knobR} fill="var(--knob-face)" stroke="#101010" strokeWidth={1} />
-
+        </svg>
+        {/* Layer 2: knob face — HTML div so CSS gradients render */}
+        <div style={{
+          position: 'absolute',
+          borderRadius: '50%',
+          background: 'var(--knob-face)',
+          border: '1px solid var(--knob-ring, #0d0d0d)',
+          width: knobR * 2,
+          height: knobR * 2,
+          left: padX / 2 + cx - knobR,
+          top: 10 + cy - knobR,
+          pointerEvents: 'none',
+        }} />
+        {/* Layer 3: pointer + center dot */}
+        <svg
+          width={size}
+          height={size}
+          style={{ position: 'absolute', left: padX / 2, top: 10, overflow: 'visible', pointerEvents: 'none' }}
+        >
           {/* Pointer */}
           <line
             x1={cx} y1={cy} x2={pointer.x} y2={pointer.y}
@@ -115,7 +140,7 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
             strokeLinecap="round"
           />
           <circle cx={pointer.x} cy={pointer.y} r={2} fill="var(--accent)" />
-          <circle cx={cx} cy={cy} r={2} fill="#111" />
+          <circle cx={cx} cy={cy} r={2} fill="var(--knob-center, #111)" />
         </svg>
       </div>
 

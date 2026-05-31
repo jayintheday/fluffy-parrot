@@ -39,6 +39,22 @@
 
   --knob-size: 64px;
   --knob-face: radial-gradient(circle at 38% 32%, #2e2e2e 0%, #1a1a1a 60%, #111 100%);
+
+  --knob-ring:        #0d0d0d;
+  --knob-track:       #1a1a1a;
+  --knob-ticks-major: #3a3a3a;
+  --knob-ticks-minor: #222222;
+  --knob-center:      #111111;
+
+  --display-border:   #0f2020;
+  --display-glow:     rgba(0, 229, 255, 0.03);
+
+  --run-btn-bg:         linear-gradient(to bottom, #00b8cc, #008fa0);
+  --run-btn-bg-pressed: #007a99;
+  --run-btn-border:     #00d4ee;
+  --run-btn-border-b:   #006070;
+  --run-btn-glow:       rgba(0, 229, 255, 0.25);
+  --run-btn-text:       #ffffff;
 }
 
 /* ── Variant A: Brushed Titanium ─────────────────────────────────────────── */

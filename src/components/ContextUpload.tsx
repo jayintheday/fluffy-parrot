@@ -109,7 +109,7 @@ export function ContextUpload({ files, onAdd, onRemove }: ContextUploadProps) {
           fontSize: 8,
           letterSpacing: '0.15em',
           transition: 'color 0.1s, border-color 0.1s',
-          boxShadow: dragOver ? '0 0 6px rgba(0,229,255,0.15)' : 'none'
+          boxShadow: dragOver ? '0 0 6px var(--accent-glow)' : 'none'
         }}
       >
         DROP·FILE / CLICK
@@ -142,7 +142,7 @@ export function ContextUpload({ files, onAdd, onRemove }: ContextUploadProps) {
               padding: '3px 4px',
               marginBottom: 2,
               background: 'var(--bg-display)',
-              border: '1px solid #0f2020'
+              border: '1px solid var(--display-border, #0f2020)'
             }}>
               <span style={{
                 color: 'var(--text-lcd)',

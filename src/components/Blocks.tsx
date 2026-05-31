@@ -96,7 +96,7 @@ export function BlockView({ block, showCursor }: { block: ContentBlock; showCurs
           fontSize: 10,
           color: 'var(--text-dim)',
           background: 'var(--bg-base)',
-          border: '1px solid #0f2020',
+          border: '1px solid var(--display-border, #0f2020)',
           padding: '4px 8px',
           maxHeight: 160,
           overflowY: 'auto',

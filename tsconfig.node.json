@@ -7,5 +7,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["electron.vite.config.*", "electron/**/*"]
+  "include": ["electron.vite.config.*", "electron/**/*", "src/lib/models.ts"]
 }

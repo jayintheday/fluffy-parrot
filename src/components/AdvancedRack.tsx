@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import { Knob } from './Knob'
+import { getModel } from '../lib/models'
 import type { ClaudeParams, Effort, ToolChoice } from '../types'
 
 interface AdvancedRackProps {
@@ -190,6 +191,14 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
     [params, onChange]
   )
 
+  // Adaptive-only models (Opus 4.7/4.8) ignore a manual thinking budget — effort controls depth.
+  const adaptive = getModel(params.model)?.thinkingMode === 'adaptive'
+
+  // Thinking budget must stay below max_tokens (Anthropic constraint), and
+  // max_tokens itself tops out at 8192 — so 32000 was never reachable. Bind the
+  // knob's range to the live MAX TOKENS so its full sweep actually engages.
+  const budgetMax = Math.max(1024, params.maxTokens - 1)
+
   const cycleEffort = () => set('effort', EFFORTS[(EFFORTS.indexOf(params.effort) + 1) % EFFORTS.length])
   const cycleToolChoice = () =>
     set('toolChoice', TOOL_CHOICES[(TOOL_CHOICES.indexOf(params.toolChoice) + 1) % TOOL_CHOICES.length])
@@ -217,7 +226,7 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
 
       <div
           style={{
-            maxHeight: open ? 120 : 0,
+            maxHeight: open ? 150 : 0,
             overflow: 'hidden',
             transition: 'max-height 0.38s ease',
           }}
@@ -234,19 +243,30 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
           }}
         >
           <Toggle on={params.thinkingEnabled} label="THINK" onClick={() => set('thinkingEnabled', !params.thinkingEnabled)} />
-          <Knob
-            label="BUDGET"
-            value={params.thinkingBudget}
-            min={1024}
-            max={32000}
-            defaultValue={1024}
-            step={256}
-            size={52}
-            onChange={v => {
-              const budget = Math.min(Math.round(v / 256) * 256, params.maxTokens - 1)
-              onChange({ ...params, thinkingBudget: budget, thinkingEnabled: budget > 1024 })
-            }}
-          />
+          {adaptive ? (
+            // Budget has no effect in adaptive mode; show it dimmed and route depth control to EFFORT.
+            <div
+              title="Adaptive thinking — depth is controlled by EFFORT, not a token budget"
+              style={{ opacity: 0.35, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}
+            >
+              <Knob label="BUDGET" value={Math.min(params.thinkingBudget, budgetMax)} min={1024} max={budgetMax} defaultValue={1024} step={256} size={64} onChange={() => {}} />
+              <span style={{ color: 'var(--text-dim)', fontSize: 7, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>USES EFFORT</span>
+            </div>
+          ) : (
+            <Knob
+              label="BUDGET"
+              value={Math.min(params.thinkingBudget, budgetMax)}
+              min={1024}
+              max={budgetMax}
+              defaultValue={1024}
+              step={256}
+              size={64}
+              onChange={v => {
+                const budget = Math.min(Math.round(v / 256) * 256, budgetMax)
+                onChange({ ...params, thinkingBudget: budget, thinkingEnabled: budget > 1024 })
+              }}
+            />
+          )}
           {divider}
           <Cycle label="EFFORT" value={params.effort} onClick={cycleEffort} />
           {divider}

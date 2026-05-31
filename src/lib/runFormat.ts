@@ -1,14 +1,7 @@
 import type { ClaudeParams, Run } from '../types'
+import { getModel, modelLabel } from './models'
 
-const MODEL_LABELS: Record<string, string> = {
-  'claude-haiku-4-5-20251001': 'HAIKU',
-  'claude-sonnet-4-6': 'SONNET',
-  'claude-opus-4-7': 'OPUS'
-}
-
-export function modelLabel(id: string): string {
-  return MODEL_LABELS[id] ?? id
-}
+export { modelLabel }
 
 // Concatenated text output of a run (excludes thinking / tool blocks).
 export function runText(run: Run): string {
@@ -39,7 +32,13 @@ const FIELDS: ParamField[] = [
   { label: 'max tokens', get: p => String(p.maxTokens) },
   { label: 'stream', get: p => (p.stream ? 'ON' : 'OFF') },
   { label: 'stop seq', get: p => p.stopSequences.join(', ') || '—' },
-  { label: 'thinking', get: p => (p.thinkingEnabled ? `ON (${p.thinkingBudget})` : 'OFF') },
+  {
+    label: 'thinking',
+    get: p => {
+      if (!p.thinkingEnabled) return 'OFF'
+      return getModel(p.model)?.thinkingMode === 'adaptive' ? 'ON (adaptive)' : `ON (${p.thinkingBudget})`
+    }
+  },
   { label: 'effort', get: p => p.effort },
   { label: 'service tier', get: p => p.serviceTier },
   { label: 'user id', get: p => p.userId || '—' },

@@ -8,7 +8,7 @@ import { RunOutput } from './components/RunOutput'
 import { DiffView } from './components/DiffView'
 import { InputBar } from './components/InputBar'
 import { LEDIndicator } from './components/LEDIndicator'
-import { APIKeySetup } from './components/APIKeySetup'
+import { SettingsModal } from './components/SettingsModal'
 import { ThemeSwitcher } from './components/ThemeSwitcher'
 import { useRuns } from './hooks/useRuns'
 import { computeCost, formatCost } from './lib/pricing'
@@ -42,6 +42,7 @@ export function App() {
   const [inputAttachments, setInputAttachments] = useState<Attachment[]>([])
   const [contextFiles, setContextFiles] = useState<Attachment[]>([])
   const [hasKey, setHasKey] = useState<boolean | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
 
   const handleAddContext = (a: Attachment) =>
     setContextFiles(prev => prev.some(f => f.name === a.name) ? prev : [...prev, a])
@@ -75,6 +76,11 @@ export function App() {
   }
 
   const handleRun = () => {
+    // No key yet — route the user to settings instead of firing a doomed run.
+    if (!hasKey) {
+      setShowSettings(true)
+      return
+    }
     setComparing(false)
     runPrompt(params.systemPrompt, { text: inputText.trim(), attachments: inputAttachments }, params, contextFiles)
   }
@@ -142,6 +148,44 @@ export function App() {
         <div style={{ flex: 1 }} />
 
         <ThemeSwitcher />
+
+        <button
+          onClick={() => setShowSettings(true)}
+          title="Settings"
+          style={{
+            position: 'relative',
+            WebkitAppRegion: 'no-drag' as never,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'none',
+            border: '1px solid var(--panel-border)',
+            borderRadius: 2,
+            color: 'var(--text-dim)',
+            font: 'inherit',
+            fontSize: 12,
+            lineHeight: 1,
+            padding: '3px 6px',
+            cursor: 'pointer',
+            transition: 'border-color 0.15s, color 0.15s'
+          }}
+        >
+          ⚙
+          {!hasKey && (
+            <span
+              style={{
+                position: 'absolute',
+                top: -3,
+                right: -3,
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: 'var(--led-red)',
+                boxShadow: '0 0 4px var(--led-red)'
+              }}
+            />
+          )}
+        </button>
 
         {runs.length > 0 && (
           <span style={{ color: 'var(--accent)', fontSize: 9, letterSpacing: '0.1em' }} title="Total cost this session">
@@ -223,7 +267,7 @@ export function App() {
       {/* Input */}
       <div style={{ flexShrink: 0 }}>
         <InputBar
-          disabled={streaming || !hasKey}
+          disabled={streaming}
           value={inputText}
           attachments={inputAttachments}
           onChange={setInputText}
@@ -232,7 +276,13 @@ export function App() {
         />
       </div>
 
-      {!hasKey && <APIKeySetup onSave={handleSaveKey} />}
+      {showSettings && (
+        <SettingsModal
+          hasKey={!!hasKey}
+          onSaveKey={handleSaveKey}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
     </div>
   )
 }

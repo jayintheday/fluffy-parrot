@@ -173,12 +173,12 @@ export function InputBar({ disabled, value, attachments, onChange, onAttachments
             background: !canSend
               ? 'var(--bg-elevated)'
               : pressed
-                ? '#007a99'
-                : 'linear-gradient(to bottom, #00b8cc, #008fa0)',
+                ? 'var(--run-btn-bg-pressed, #007a99)'
+                : 'var(--run-btn-bg, linear-gradient(to bottom, #00b8cc, #008fa0))',
             border: '1px solid',
-            borderColor: !canSend ? 'var(--panel-border)' : '#00d4ee',
-            borderBottomColor: !canSend ? 'var(--panel-border)' : '#006070',
-            color: !canSend ? 'var(--text-dim)' : '#fff',
+            borderColor: !canSend ? 'var(--panel-border)' : 'var(--run-btn-border, #00d4ee)',
+            borderBottomColor: !canSend ? 'var(--panel-border)' : 'var(--run-btn-border-b, #006070)',
+            color: !canSend ? 'var(--text-dim)' : 'var(--run-btn-text, #fff)',
             font: 'inherit',
             fontSize: 10,
             letterSpacing: '0.15em',
@@ -188,7 +188,7 @@ export function InputBar({ disabled, value, attachments, onChange, onAttachments
               ? 'inset 0 2px 4px rgba(0,0,0,0.4)'
               : !canSend
                 ? 'inset 0 1px 3px rgba(0,0,0,0.5)'
-                : '0 0 10px rgba(0,229,255,0.25), inset 0 1px 0 rgba(255,255,255,0.15)',
+                : '0 0 10px var(--run-btn-glow, rgba(0,229,255,0.25)), inset 0 1px 0 rgba(255,255,255,0.15)',
             transform: pressed ? 'translateY(1px)' : 'none',
             transition: 'background 0.05s, box-shadow 0.05s',
             minWidth: 60,
