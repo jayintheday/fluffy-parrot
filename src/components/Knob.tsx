@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import { useKnobDrag } from '../hooks/useKnobDrag'
-import { InfoLink } from './InfoLink'
+import { DocsLabel } from './DocsLabel'
 
 interface KnobProps {
   value: number
@@ -214,13 +214,10 @@ export function Knob({ value, min, max, defaultValue, step, label, unit, size = 
         </span>
       )}
 
-      {/* Label */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-        <span style={{ color: 'var(--text-dim)', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-          {label}
-        </span>
-        {docsUrl && <InfoLink url={docsUrl} />}
-      </div>
+      {/* Label doubles as the docs link */}
+      <DocsLabel url={docsUrl} style={{ color: 'var(--text-dim)', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+        {label}
+      </DocsLabel>
     </div>
   )
 }

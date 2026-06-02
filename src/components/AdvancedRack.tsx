@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import { Knob } from './Knob'
-import { InfoLink } from './InfoLink'
+import { DocsLabel } from './DocsLabel'
+import { docsLinks } from '../lib/docsLinks'
 import { getModel } from '../lib/models'
 import type { ClaudeParams, Effort, ToolChoice } from '../types'
 
@@ -41,12 +42,9 @@ function Toggle({ on, label, onClick, docsUrl }: { on: boolean; label: string; o
           }}
         />
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-        <span style={{ color: on ? 'var(--accent)' : 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>
-          {label}
-        </span>
-        {docsUrl && <InfoLink url={docsUrl} />}
-      </div>
+      <DocsLabel url={docsUrl} style={{ color: on ? 'var(--accent)' : 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>
+        {label}
+      </DocsLabel>
     </div>
   )
 }
@@ -73,10 +71,7 @@ function Cycle({ label, value, onClick, docsUrl }: { label: string; value: strin
       >
         {value.toUpperCase()}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-        <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>{label}</span>
-        {docsUrl && <InfoLink url={docsUrl} />}
-      </div>
+      <DocsLabel url={docsUrl} style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>{label}</DocsLabel>
     </div>
   )
 }
@@ -116,10 +111,7 @@ function TextField({
           boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)'
         }}
       />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-        <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>{label}</span>
-        {docsUrl && <InfoLink url={docsUrl} />}
-      </div>
+      <DocsLabel url={docsUrl} style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>{label}</DocsLabel>
     </div>
   )
 }
@@ -177,10 +169,7 @@ function StopSeqField({ value, onChange, docsUrl }: { value: string[]; onChange:
           }}
         />
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-        <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em' }}>STOP SEQ</span>
-        {docsUrl && <InfoLink url={docsUrl} />}
-      </div>
+      <DocsLabel url={docsUrl} style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em' }}>STOP SEQ</DocsLabel>
     </div>
   )
 }
@@ -257,14 +246,14 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
             boxShadow: 'var(--panel-shadow)'
           }}
         >
-          <Toggle on={params.thinkingEnabled} label="THINK" onClick={() => set('thinkingEnabled', !params.thinkingEnabled)} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking" />
+          <Toggle on={params.thinkingEnabled} label="THINK" onClick={() => set('thinkingEnabled', !params.thinkingEnabled)} docsUrl={docsLinks.thinking} />
           {adaptive ? (
             // Budget has no effect in adaptive mode; show it dimmed and route depth control to EFFORT.
             <div
               title="Adaptive thinking — depth is controlled by EFFORT, not a token budget"
               style={{ opacity: 0.35, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}
             >
-              <Knob label="BUDGET" value={Math.min(params.thinkingBudget, budgetMax)} min={1024} max={budgetMax} defaultValue={1024} step={256} size={64} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking" onChange={() => {}} />
+              <Knob label="BUDGET" value={Math.min(params.thinkingBudget, budgetMax)} min={1024} max={budgetMax} defaultValue={1024} step={256} size={64} docsUrl={docsLinks.thinking} onChange={() => {}} />
               <span style={{ color: 'var(--text-dim)', fontSize: 7, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>USES EFFORT</span>
             </div>
           ) : (
@@ -276,7 +265,7 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
               defaultValue={1024}
               step={256}
               size={64}
-              docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking"
+              docsUrl={docsLinks.thinking}
               onChange={v => {
                 const budget = Math.min(Math.round(v / 256) * 256, budgetMax)
                 onChange({ ...params, thinkingBudget: budget, thinkingEnabled: budget > 1024 })
@@ -284,26 +273,26 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
             />
           )}
           {divider}
-          <Cycle label="EFFORT" value={params.effort} onClick={cycleEffort} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking" />
+          <Cycle label="EFFORT" value={params.effort} onClick={cycleEffort} docsUrl={docsLinks.thinking} />
           {divider}
           <Toggle
             on={params.serviceTier === 'standard_only'}
             label="STD TIER"
             onClick={() => set('serviceTier', params.serviceTier === 'auto' ? 'standard_only' : 'auto')}
-            docsUrl="https://docs.anthropic.com/en/api/messages"
+            docsUrl={docsLinks.serviceTier}
           />
-          <Toggle on={params.cacheEnabled} label="CACHE" onClick={() => set('cacheEnabled', !params.cacheEnabled)} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching" />
+          <Toggle on={params.cacheEnabled} label="CACHE" onClick={() => set('cacheEnabled', !params.cacheEnabled)} docsUrl={docsLinks.cache} />
           {divider}
-          <StopSeqField value={params.stopSequences} onChange={v => set('stopSequences', v)} docsUrl="https://docs.anthropic.com/en/api/messages" />
-          <TextField label="USER ID" value={params.userId} placeholder="metadata" docsUrl="https://docs.anthropic.com/en/api/messages" onChange={v => set('userId', v)} />
+          <StopSeqField value={params.stopSequences} onChange={v => set('stopSequences', v)} docsUrl={docsLinks.stopSequences} />
+          <TextField label="USER ID" value={params.userId} placeholder="metadata" docsUrl={docsLinks.userId} onChange={v => set('userId', v)} />
           {divider}
-          <Toggle on={params.tools.webSearch} label="WEB SRCH" onClick={() => setTool('webSearch')} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/tool-use/web-search-tool" />
-          <Toggle on={params.tools.codeExec} label="CODE EXEC" onClick={() => setTool('codeExec')} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/tool-use/code-execution-tool" />
-          <Toggle on={params.tools.webFetch} label="WEB FETCH" onClick={() => setTool('webFetch')} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/tool-use/web-fetch" />
-          <Cycle label="TOOL CHC" value={params.toolChoice} onClick={cycleToolChoice} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview" />
+          <Toggle on={params.tools.webSearch} label="WEB SRCH" onClick={() => setTool('webSearch')} docsUrl={docsLinks.webSearch} />
+          <Toggle on={params.tools.codeExec} label="CODE EXEC" onClick={() => setTool('codeExec')} docsUrl={docsLinks.codeExec} />
+          <Toggle on={params.tools.webFetch} label="WEB FETCH" onClick={() => setTool('webFetch')} docsUrl={docsLinks.webFetch} />
+          <Cycle label="TOOL CHC" value={params.toolChoice} onClick={cycleToolChoice} docsUrl={docsLinks.toolChoice} />
           {divider}
-          <TextField label="CONTAINER" value={params.container} placeholder="id" width={90} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/tool-use/code-execution-tool" onChange={v => set('container', v)} />
-          <TextField label="GEO" value={params.inferenceGeo} placeholder="region" width={70} docsUrl="https://docs.anthropic.com/en/api/messages" onChange={v => set('inferenceGeo', v)} />
+          <TextField label="CONTAINER" value={params.container} placeholder="id" width={90} docsUrl={docsLinks.container} onChange={v => set('container', v)} />
+          <TextField label="GEO" value={params.inferenceGeo} placeholder="region" width={70} docsUrl={docsLinks.inferenceGeo} onChange={v => set('inferenceGeo', v)} />
         </div>
       </div>
     </div>
