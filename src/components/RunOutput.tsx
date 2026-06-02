@@ -5,6 +5,10 @@ import { paramsSummary } from '../lib/runFormat'
 import { computeCost, formatCost } from '../lib/pricing'
 import { downloadRunSettings } from '../lib/apiRequest'
 
+function formatMs(ms: number): string {
+  return ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${ms}ms`
+}
+
 interface RunOutputProps {
   run: Run | null
 }
@@ -75,6 +79,14 @@ export function RunOutput({ run }: RunOutputProps) {
             {tokenUsage.input > 0 && `IN:${tokenUsage.input} `}
             {tokenUsage.output > 0 && `OUT:${tokenUsage.output} `}
             <span style={{ color: 'var(--accent)' }}>· {streaming ? '—' : formatCost(computeCost(run))}</span>
+            {!streaming && run.timing && (
+              <span style={{ color: 'var(--text-dim)', marginLeft: 6 }}>
+                ·{' '}
+                {run.timing.ttftMs < run.timing.totalMs && `↓${formatMs(run.timing.ttftMs)} `}
+                {formatMs(run.timing.totalMs)}
+                {run.timing.tokensPerSec !== undefined && ` ${run.timing.tokensPerSec}t/s`}
+              </span>
+            )}
           </span>
           <button
             onClick={() => downloadRunSettings(run)}

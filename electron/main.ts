@@ -30,9 +30,9 @@ async function saveApiKey(key: string): Promise<void> {
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 1100,
+    width: 1260,
     height: 700,
-    minWidth: 900,
+    minWidth: 1060,
     minHeight: 620,
     maxWidth: 1400,
     maxHeight: 900,
@@ -73,6 +73,8 @@ app.on('window-all-closed', () => {
 
 // IPC: get stored key status
 ipcMain.handle('api:hasKey', () => !!storedApiKey)
+
+ipcMain.handle('shell:openExternal', (_, url: string) => shell.openExternal(url))
 
 // IPC: save key
 ipcMain.handle('api:saveKey', async (_, key: string) => {
@@ -205,12 +207,16 @@ ipcMain.handle('api:sendMessage', async (event, payload: SendPayload) => {
   })
 
   if (!payload.stream) {
+    const requestStart = Date.now()
     const response = await client.messages.create({ ...buildParams, stream: false } as any)
+    const totalMs = Date.now() - requestStart
     const blocks = (response.content as any[]).map(mapBlock)
-    return { blocks, ...extractUsage(response.usage) }
+    return { blocks, ...extractUsage(response.usage), timing: { ttftMs: totalMs, totalMs } }
   }
 
   // streaming
+  const requestStart = Date.now()
+  let firstTokenAt: number | null = null
   const stream = client.messages.stream(buildParams as any)
   for await (const ev of stream as any) {
     if (ev.type === 'content_block_start') {
@@ -228,8 +234,10 @@ ipcMain.handle('api:sendMessage', async (event, payload: SendPayload) => {
       }
     } else if (ev.type === 'content_block_delta') {
       const d = ev.delta
-      if (d.type === 'text_delta') event.sender.send('api:stream', { kind: 'delta', index: ev.index, text: d.text })
-      else if (d.type === 'thinking_delta')
+      if (d.type === 'text_delta') {
+        if (firstTokenAt === null) firstTokenAt = Date.now()
+        event.sender.send('api:stream', { kind: 'delta', index: ev.index, text: d.text })
+      } else if (d.type === 'thinking_delta')
         event.sender.send('api:stream', { kind: 'delta', index: ev.index, text: d.thinking })
       else if (d.type === 'input_json_delta')
         event.sender.send('api:stream', { kind: 'delta', index: ev.index, input: d.partial_json })
@@ -238,6 +246,8 @@ ipcMain.handle('api:sendMessage', async (event, payload: SendPayload) => {
     }
   }
   const final = await stream.finalMessage()
-  event.sender.send('api:done', extractUsage(final.usage))
+  const totalMs = Date.now() - requestStart
+  const ttftMs = firstTokenAt !== null ? firstTokenAt - requestStart : totalMs
+  event.sender.send('api:done', { ...extractUsage(final.usage), timing: { ttftMs, totalMs } })
   return null
 })

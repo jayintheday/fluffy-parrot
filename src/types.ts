@@ -51,12 +51,19 @@ export interface TokenUsage {
   webSearches?: number
 }
 
+export interface TimingInfo {
+  ttftMs: number
+  totalMs: number
+  tokensPerSec?: number
+}
+
 export interface DoneUsage {
   inputTokens: number
   outputTokens: number
   cacheWriteTokens: number
   cacheReadTokens: number
   webSearches: number
+  timing?: { ttftMs: number; totalMs: number }
 }
 
 export type RunStatus = 'streaming' | 'done' | 'error'
@@ -69,6 +76,7 @@ export interface Run {
   input: { text: string; attachments: Attachment[] }
   output: ContentBlock[]
   tokenUsage: TokenUsage
+  timing?: TimingInfo
   status: RunStatus
   createdAt: number
 }
@@ -85,6 +93,7 @@ declare global {
     electronAPI: {
       hasKey: () => Promise<boolean>
       saveKey: (key: string) => Promise<boolean>
+      openExternal: (url: string) => Promise<void>
       sendMessage: (payload: object) => Promise<({ blocks: ContentBlock[] } & DoneUsage) | null>
       onStreamEvent: (cb: (ev: StreamEvent) => void) => () => void
       onDone: (cb: (usage: DoneUsage) => void) => () => void

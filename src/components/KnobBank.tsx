@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 import { Knob } from './Knob'
 import { ModelSelector } from './ModelSelector'
+import { InfoLink } from './InfoLink'
 import type { ClaudeParams } from '../types'
 
 interface KnobBankProps {
@@ -78,6 +79,7 @@ export function KnobBank({ params, onChange }: KnobBankProps) {
         value={params.temperature}
         min={0} max={1} defaultValue={1} step={0.01}
         hot={params.temperature > 0.85}
+        docsUrl="https://docs.anthropic.com/en/api/messages"
         onChange={v => set('temperature', Math.round(v * 100) / 100)}
       />
       {divider}
@@ -85,6 +87,7 @@ export function KnobBank({ params, onChange }: KnobBankProps) {
         label="TOP·P"
         value={params.topP}
         min={0} max={1} defaultValue={1} step={0.01}
+        docsUrl="https://docs.anthropic.com/en/api/messages"
         onChange={v => set('topP', Math.round(v * 100) / 100)}
       />
       {divider}
@@ -93,6 +96,7 @@ export function KnobBank({ params, onChange }: KnobBankProps) {
         value={params.topK}
         min={0} max={500} defaultValue={0} step={1}
         unit={params.topK === 0 ? 'OFF' : undefined}
+        docsUrl="https://docs.anthropic.com/en/api/messages"
         onChange={v => set('topK', Math.round(v))}
       />
       {divider}
@@ -102,6 +106,7 @@ export function KnobBank({ params, onChange }: KnobBankProps) {
         min={256} max={8192} defaultValue={2048} step={64}
         unit="tok"
         hot={params.maxTokens > 7000}
+        docsUrl="https://docs.anthropic.com/en/api/messages"
         onChange={v => set('maxTokens', Math.round(v / 64) * 64)}
       />
       {divider}
@@ -133,9 +138,12 @@ export function KnobBank({ params, onChange }: KnobBankProps) {
             transition: 'left 0.2s cubic-bezier(0.4,0,0.2,1), background 0.2s cubic-bezier(0.4,0,0.2,1)'
           }} />
         </div>
-        <span style={{ color: params.stream ? 'var(--accent)' : 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em' }}>
-          STREAM
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ color: params.stream ? 'var(--accent)' : 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em' }}>
+            STREAM
+          </span>
+          <InfoLink url="https://docs.anthropic.com/en/api/messages-streaming" />
+        </div>
       </div>
     </div>
   )

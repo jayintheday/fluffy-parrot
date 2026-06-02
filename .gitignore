@@ -5,3 +5,7 @@ dist-electron/
 *.local
 .DS_Store
 .gstack/
+*.tsbuildinfo
+release/
+.vscode/
+.idea/

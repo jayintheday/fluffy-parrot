@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import { Knob } from './Knob'
+import { InfoLink } from './InfoLink'
 import { getModel } from '../lib/models'
 import type { ClaudeParams, Effort, ToolChoice } from '../types'
 
@@ -11,7 +12,7 @@ interface AdvancedRackProps {
 const EFFORTS: Effort[] = ['off', 'low', 'medium', 'high', 'xhigh', 'max']
 const TOOL_CHOICES: ToolChoice[] = ['auto', 'any', 'none']
 
-function Toggle({ on, label, onClick }: { on: boolean; label: string; onClick: () => void }) {
+function Toggle({ on, label, onClick, docsUrl }: { on: boolean; label: string; onClick: () => void; docsUrl?: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
       <div
@@ -40,15 +41,18 @@ function Toggle({ on, label, onClick }: { on: boolean; label: string; onClick: (
           }}
         />
       </div>
-      <span style={{ color: on ? 'var(--accent)' : 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap', textAlign: 'center' }}>
-        {label}
-      </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+        <span style={{ color: on ? 'var(--accent)' : 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>
+          {label}
+        </span>
+        {docsUrl && <InfoLink url={docsUrl} />}
+      </div>
     </div>
   )
 }
 
 // Click-to-cycle stepped readout, styled like a small detent display.
-function Cycle({ label, value, onClick }: { label: string; value: string; onClick: () => void }) {
+function Cycle({ label, value, onClick, docsUrl }: { label: string; value: string; onClick: () => void; docsUrl?: string }) {
   const active = value !== 'off' && value !== 'auto'
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
@@ -69,7 +73,10 @@ function Cycle({ label, value, onClick }: { label: string; value: string; onClic
       >
         {value.toUpperCase()}
       </div>
-      <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap', textAlign: 'center' }}>{label}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+        <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>{label}</span>
+        {docsUrl && <InfoLink url={docsUrl} />}
+      </div>
     </div>
   )
 }
@@ -79,12 +86,14 @@ function TextField({
   value,
   placeholder,
   width = 120,
+  docsUrl,
   onChange
 }: {
   label: string
   value: string
   placeholder?: string
   width?: number
+  docsUrl?: string
   onChange: (v: string) => void
 }) {
   return (
@@ -107,12 +116,15 @@ function TextField({
           boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)'
         }}
       />
-      <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap', textAlign: 'center' }}>{label}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+        <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>{label}</span>
+        {docsUrl && <InfoLink url={docsUrl} />}
+      </div>
     </div>
   )
 }
 
-function StopSeqField({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+function StopSeqField({ value, onChange, docsUrl }: { value: string[]; onChange: (v: string[]) => void; docsUrl?: string }) {
   const [draft, setDraft] = useState('')
   const add = () => {
     const t = draft.trim()
@@ -165,7 +177,10 @@ function StopSeqField({ value, onChange }: { value: string[]; onChange: (v: stri
           }}
         />
       </div>
-      <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em' }}>STOP SEQ</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+        <span style={{ color: 'var(--text-dim)', fontSize: 8, letterSpacing: '0.1em' }}>STOP SEQ</span>
+        {docsUrl && <InfoLink url={docsUrl} />}
+      </div>
     </div>
   )
 }
@@ -182,7 +197,7 @@ const divider = (
 )
 
 export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
 
   const set = useCallback(
     <K extends keyof ClaudeParams>(key: K, value: ClaudeParams[K]) => {
@@ -242,14 +257,14 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
             boxShadow: 'var(--panel-shadow)'
           }}
         >
-          <Toggle on={params.thinkingEnabled} label="THINK" onClick={() => set('thinkingEnabled', !params.thinkingEnabled)} />
+          <Toggle on={params.thinkingEnabled} label="THINK" onClick={() => set('thinkingEnabled', !params.thinkingEnabled)} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking" />
           {adaptive ? (
             // Budget has no effect in adaptive mode; show it dimmed and route depth control to EFFORT.
             <div
               title="Adaptive thinking — depth is controlled by EFFORT, not a token budget"
               style={{ opacity: 0.35, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}
             >
-              <Knob label="BUDGET" value={Math.min(params.thinkingBudget, budgetMax)} min={1024} max={budgetMax} defaultValue={1024} step={256} size={64} onChange={() => {}} />
+              <Knob label="BUDGET" value={Math.min(params.thinkingBudget, budgetMax)} min={1024} max={budgetMax} defaultValue={1024} step={256} size={64} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking" onChange={() => {}} />
               <span style={{ color: 'var(--text-dim)', fontSize: 7, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>USES EFFORT</span>
             </div>
           ) : (
@@ -261,6 +276,7 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
               defaultValue={1024}
               step={256}
               size={64}
+              docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking"
               onChange={v => {
                 const budget = Math.min(Math.round(v / 256) * 256, budgetMax)
                 onChange({ ...params, thinkingBudget: budget, thinkingEnabled: budget > 1024 })
@@ -268,25 +284,26 @@ export function AdvancedRack({ params, onChange }: AdvancedRackProps) {
             />
           )}
           {divider}
-          <Cycle label="EFFORT" value={params.effort} onClick={cycleEffort} />
+          <Cycle label="EFFORT" value={params.effort} onClick={cycleEffort} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking" />
           {divider}
           <Toggle
             on={params.serviceTier === 'standard_only'}
             label="STD TIER"
             onClick={() => set('serviceTier', params.serviceTier === 'auto' ? 'standard_only' : 'auto')}
+            docsUrl="https://docs.anthropic.com/en/api/messages"
           />
-          <Toggle on={params.cacheEnabled} label="CACHE" onClick={() => set('cacheEnabled', !params.cacheEnabled)} />
+          <Toggle on={params.cacheEnabled} label="CACHE" onClick={() => set('cacheEnabled', !params.cacheEnabled)} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching" />
           {divider}
-          <StopSeqField value={params.stopSequences} onChange={v => set('stopSequences', v)} />
-          <TextField label="USER ID" value={params.userId} placeholder="metadata" onChange={v => set('userId', v)} />
+          <StopSeqField value={params.stopSequences} onChange={v => set('stopSequences', v)} docsUrl="https://docs.anthropic.com/en/api/messages" />
+          <TextField label="USER ID" value={params.userId} placeholder="metadata" docsUrl="https://docs.anthropic.com/en/api/messages" onChange={v => set('userId', v)} />
           {divider}
-          <Toggle on={params.tools.webSearch} label="WEB SRCH" onClick={() => setTool('webSearch')} />
-          <Toggle on={params.tools.codeExec} label="CODE EXEC" onClick={() => setTool('codeExec')} />
-          <Toggle on={params.tools.webFetch} label="WEB FETCH" onClick={() => setTool('webFetch')} />
-          <Cycle label="TOOL CHC" value={params.toolChoice} onClick={cycleToolChoice} />
+          <Toggle on={params.tools.webSearch} label="WEB SRCH" onClick={() => setTool('webSearch')} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/tool-use/web-search-tool" />
+          <Toggle on={params.tools.codeExec} label="CODE EXEC" onClick={() => setTool('codeExec')} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/tool-use/code-execution-tool" />
+          <Toggle on={params.tools.webFetch} label="WEB FETCH" onClick={() => setTool('webFetch')} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/tool-use/web-fetch" />
+          <Cycle label="TOOL CHC" value={params.toolChoice} onClick={cycleToolChoice} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview" />
           {divider}
-          <TextField label="CONTAINER" value={params.container} placeholder="id" width={90} onChange={v => set('container', v)} />
-          <TextField label="GEO" value={params.inferenceGeo} placeholder="region" width={70} onChange={v => set('inferenceGeo', v)} />
+          <TextField label="CONTAINER" value={params.container} placeholder="id" width={90} docsUrl="https://docs.anthropic.com/en/docs/build-with-claude/tool-use/code-execution-tool" onChange={v => set('container', v)} />
+          <TextField label="GEO" value={params.inferenceGeo} placeholder="region" width={70} docsUrl="https://docs.anthropic.com/en/api/messages" onChange={v => set('inferenceGeo', v)} />
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react'
 import { MODELS as MODEL_REGISTRY } from '../lib/models'
+import { InfoLink } from './InfoLink'
 
 const MODELS = MODEL_REGISTRY.map(m => ({ id: m.id, label: m.label }))
 
@@ -61,6 +62,7 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
       <div style={{ position: 'relative', width: size + padX, height: size + 20 }}>
+
         {/* Model labels */}
         {MODELS.map((m, i) => {
           const angle = positions[i]
@@ -143,7 +145,10 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
           <circle cx={cx} cy={cy} r={2} fill="var(--knob-center, #111)" />
         </svg>
       </div>
-
+      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+        <span style={{ color: 'var(--text-dim)', fontSize: 9, letterSpacing: '0.15em' }}>MODEL</span>
+        <InfoLink url="https://docs.anthropic.com/en/docs/about-claude/models/overview" />
+      </div>
     </div>
   )
 }

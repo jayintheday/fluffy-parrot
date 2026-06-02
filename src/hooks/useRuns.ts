@@ -101,9 +101,18 @@ export function useRuns() {
           })
         })
         const unsubDone = window.electronAPI.onDone(usage => {
+          let timing: import('../types').TimingInfo | undefined
+          if (usage.timing) {
+            const generationMs = usage.timing.totalMs - usage.timing.ttftMs
+            const tokensPerSec = generationMs > 0 && usage.outputTokens > 0
+              ? Math.round(usage.outputTokens / (generationMs / 1000))
+              : undefined
+            timing = { ...usage.timing, tokensPerSec }
+          }
           patchRun(id, r => ({
             ...r,
             status: 'done',
+            timing,
             tokenUsage: {
               input: usage.inputTokens,
               output: usage.outputTokens,
@@ -133,6 +142,7 @@ export function useRuns() {
             patchRun(id, r => ({
               ...r,
               status: 'done',
+              timing: result.timing,
               output: result.blocks,
               tokenUsage: {
                 input: result.inputTokens,

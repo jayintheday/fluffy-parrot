@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import { useKnobDrag } from '../hooks/useKnobDrag'
+import { InfoLink } from './InfoLink'
 
 interface KnobProps {
   value: number
@@ -11,6 +12,7 @@ interface KnobProps {
   unit?: string
   size?: number
   hot?: boolean // true when value should trigger orange "warm" color
+  docsUrl?: string
   onChange: (v: number) => void
 }
 
@@ -36,7 +38,7 @@ function describeArc(cx: number, cy: number, r: number, startAngle: number, endA
   return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} ${sweep} ${end.x} ${end.y}`
 }
 
-export function Knob({ value, min, max, defaultValue, step, label, unit, size = 64, hot, onChange }: KnobProps) {
+export function Knob({ value, min, max, defaultValue, step, label, unit, size = 64, hot, docsUrl, onChange }: KnobProps) {
   const [editing, setEditing] = useState(false)
   const [editStr, setEditStr] = useState('')
 
@@ -213,9 +215,12 @@ export function Knob({ value, min, max, defaultValue, step, label, unit, size = 
       )}
 
       {/* Label */}
-      <span style={{ color: 'var(--text-dim)', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-        {label}
-      </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+        <span style={{ color: 'var(--text-dim)', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+          {label}
+        </span>
+        {docsUrl && <InfoLink url={docsUrl} />}
+      </div>
     </div>
   )
 }
