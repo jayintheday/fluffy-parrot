@@ -2,7 +2,7 @@
 
 A hardware-synthesiser–style control surface for the Anthropic Claude API. Every generation parameter is a physical rotary knob.
 
-![Fluffy Parrot — hardware control surface UI](docs/screenshot.webp)
+![Fluffy Parrot — hardware control surface UI](docs/screenshot.png)
 
 **[Download the latest DMG →](https://github.com/jayintheday/fluffy-parrot/releases/latest)**
 
