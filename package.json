@@ -39,11 +39,11 @@
     "appId": "co.vijay-patel.fluffy-parrot",
     "productName": "Fluffy Parrot",
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "icon": "build/icon.icns"
     },
     "files": [
-      "dist/**/*",
-      "dist-electron/**/*"
+      "out/**/*"
     ]
   }
 }

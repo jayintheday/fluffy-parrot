@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+      <!-- Wide outer halo -->
+      <feGaussianBlur in="SourceGraphic" stdDeviation="22" result="blur-wide"/>
+      <!-- Tight inner glow -->
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur-tight"/>
+      <feMerge>
+        <feMergeNode in="blur-wide"/>
+        <feMergeNode in="blur-tight"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="#0a0a0a"/>
+
+  <!-- Knob icon — KnobIcon paths from icons.tsx, scaled to ~550px, centred at (512,430) -->
+  <!-- Original viewBox 0 0 24 24; transform: place (12,12) at (512,430), scale 23x -->
+  <g transform="translate(512,512) scale(23) translate(-12,-12)"
+     fill="none"
+     stroke="#00e5ff"
+     stroke-width="0.42"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     filter="url(#glow)">
+    <path d="M5.6 18.4a9 9 0 1 1 12.8 0"/>
+    <circle cx="12" cy="12" r="5"/>
+    <path d="M12 12V7.8"/>
+    <path d="M12 1.5v1.6M22.5 12h-1.6M1.5 12h1.6M4.9 4.9l1.1 1.1M19.1 4.9l-1.1 1.1"/>
+  </g>
+
+</svg>

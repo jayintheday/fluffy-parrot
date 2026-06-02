@@ -10,36 +10,24 @@ interface KnobBankProps {
   onChange: (params: ClaudeParams) => void
 }
 
-// Claude logomark — radial burst rendered in the panel accent.
+// App logomark — knob icon in panel accent colour.
 function BrandLogo() {
-  const size = 44
-  const c = size / 2
-  const rays = 12
-  const inner = 3.5
-  const outer = c - 3
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      <svg width={size} height={size} style={{ overflow: 'visible', filter: 'drop-shadow(0 0 5px var(--accent-glow))' }}>
-        {Array.from({ length: rays }, (_, i) => {
-          const a = (i / rays) * Math.PI * 2 - Math.PI / 2
-          const len = outer * (i % 2 === 0 ? 1 : 0.72)
-          return (
-            <line
-              key={i}
-              x1={c + Math.cos(a) * inner}
-              y1={c + Math.sin(a) * inner}
-              x2={c + Math.cos(a) * len}
-              y2={c + Math.sin(a) * len}
-              stroke="var(--accent)"
-              strokeWidth={2.4}
-              strokeLinecap="round"
-            />
-          )
-        })}
-        <circle cx={c} cy={c} r={2} fill="var(--accent)" />
-      </svg>
-      <span style={{ color: 'var(--text-dim)', fontSize: 9, letterSpacing: '0.15em' }}>CLAUDE</span>
-    </div>
+    <svg
+      width={44} height={44}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="var(--accent)"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ overflow: 'visible', filter: 'drop-shadow(0 0 5px var(--accent-glow))' }}
+    >
+      <path d="M5.6 18.4a9 9 0 1 1 12.8 0" />
+      <circle cx="12" cy="12" r="5" />
+      <path d="M12 12V7.8" />
+      <path d="M12 1.5v1.6M22.5 12h-1.6M1.5 12h1.6M4.9 4.9l1.1 1.1M19.1 4.9l-1.1 1.1" />
+    </svg>
   )
 }
 
