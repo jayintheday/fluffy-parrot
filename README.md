@@ -42,7 +42,7 @@ npm run dev       # development mode with hot reload
 npm run build     # production build — produces a DMG in dist/
 ```
 
-`npm run build` runs `electron-vite build && electron-builder` and outputs a DMG at `dist/mac-arm64/Fluffy Parrot-<version>.dmg`.
+`npm run build` runs `electron-vite build && electron-builder` and outputs a DMG at `dist/Fluffy Parrot-<version>-arm64.dmg`.
 
 ---
 
