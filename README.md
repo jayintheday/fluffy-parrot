@@ -21,7 +21,7 @@ A hardware-synthesiser–style control surface for the Anthropic Claude API. Eve
 ## Features
 
 - Rotary knobs for Temperature, Top-P, Top-K, and Max Tokens — drag vertically, hold Shift for fine control, or use the scroll wheel
-- Three-position model knob: Haiku / Sonnet / Opus
+- Rotary model knob: Haiku / Sonnet / Opus 4.7 / Opus 4.8 / Fable 5
 - Live streaming responses with a 20-segment token meter
 - System prompt editor (LCD-green on dark blue with scanlines)
 - Prompt comparison lab — run two parameter configurations side by side and diff the outputs

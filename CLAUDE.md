@@ -70,7 +70,8 @@ src/
   components/
     KnobBank.tsx    — Row of 4 parameter knobs + stream mode toggle
     Knob.tsx        — Reusable SVG rotary knob (270° arc, tick marks, hot state)
-    ModelSelector.tsx — 3-position rotary for Haiku / Sonnet / Opus
+    ModelSelector.tsx — rotary model selector; detents spread across a 270° arc
+                      sized to the model count (driven by src/lib/models.ts)
     Display.tsx     — System prompt textarea (LCD-green on dark blue, scanlines overlay)
     ConversationView.tsx — Message thread + 20-segment token meter
     InputBar.tsx    — Auto-expanding textarea + SEND button
@@ -122,14 +123,20 @@ InputBar.handleSend()
 | Temperature | 0.0 – 1.0 | 1.0 | Mutually exclusive with top-p (see below) |
 | Top-P | 0.0 – 1.0 | 1.0 | When < 0.999 it replaces temperature in the request |
 | Top-K | 0 – 500 | 0 | Omitted from request when 0 |
-| Max Tokens | 256 – 8192 | 2048 | Controls token meter scale |
+| Max Tokens | 256 – model max | 2048 | Caps at the selected model's `maxOutput` (64K Haiku/Sonnet, 128K Opus/Fable); switching models clamps the value down. Also sets the token meter scale. |
 
-**Critical constraint** (`electron/main.ts`): The Anthropic API rejects requests that include both `temperature` and `top_p`. The build logic sends `top_p` if the knob is below 0.999, otherwise `temperature`. Do not break this when editing the request builder.
+**Critical constraints** (`electron/main.ts` + `src/lib/apiRequest.ts` — keep both in sync):
+- The Anthropic API rejects requests that include both `temperature` and `top_p`. The build logic sends `top_p` if the knob is below 0.999, otherwise `temperature`.
+- Sampling params (`temperature`/`top_p`/`top_k`) and manual `thinking.budget_tokens` are model-gated via `src/lib/models.ts` (`allowsSampling`, `thinkingMode`). Adaptive-thinking models (Opus 4.7+, Fable) reject them. The `thinking` key is only ever added when the THINK toggle is on, so a `{type:"disabled"}` is never sent (this matters for Fable 5, which 400s on explicit disable).
 
-**Models** (hardcoded strings):
-- `claude-haiku-4-5-20251001`
-- `claude-sonnet-4-6` (default)
-- `claude-opus-4-7`
+**Models** — single source of truth is `src/lib/models.ts` (`MODELS` array + `getModel()`); both the renderer and `electron/main.ts` import it. Each entry carries capability flags (`thinkingMode`, `allowsSampling`, `effortSupported`), `maxOutput`, and `price`. Currently registered:
+- `claude-haiku-4-5-20251001` — HAIKU
+- `claude-sonnet-4-6` — SONNET (default)
+- `claude-opus-4-7` — OPUS 4.7
+- `claude-opus-4-8` — OPUS 4.8
+- `claude-fable-5` — FABLE 5 (top tier, $10/$50 per 1M)
+
+Adding a model is normally just a new `MODELS` entry — the selector, pricing, run summaries, and request builders all read from the registry.
 
 ---
 

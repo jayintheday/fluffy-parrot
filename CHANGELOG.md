@@ -5,6 +5,18 @@ All notable changes to Fluffy Parrot are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] — 2026-06-11
+
+### Added
+
+- Claude Fable 5 as a selectable model — a fifth position on the model knob, Anthropic's top-tier model (adaptive thinking, effort-controlled).
+
+### Changed
+
+- The Max Tokens knob now scales to the selected model's output ceiling (up to 128K for Opus / Fable, 64K for Haiku / Sonnet) instead of a fixed 8192 cap. Switching to a lower-ceiling model clamps the current value down.
+
+[0.2.0]: https://github.com/jayintheday/fluffy-parrot/releases/tag/v0.2.0
+
 ## [0.1.0] — 2026-06-02
 
 First public release.

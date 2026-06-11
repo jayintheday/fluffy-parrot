@@ -1,6 +1,6 @@
 {
   "name": "fluffy-parrot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Claude API interface with VST-style hardware UI",
   "author": {
     "name": "Vijay Patel",
