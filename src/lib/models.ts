@@ -15,7 +15,7 @@ export interface ModelInfo {
   id: string
   label: string // shown on the rotary selector + run summaries
   price: ModelPrice // USD per million tokens
-  maxOutput: number // informational
+  maxOutput: number // caps the TOKENS knob (and informs the token meter scale)
   thinkingMode: ThinkingMode // how the THINK toggle is expressed in the request
   allowsSampling: boolean // temperature/top_p/top_k accepted? (Opus 4.7+ reject them)
   effortSupported: boolean // output_config.effort accepted? (Haiku 4.5 does not)
@@ -53,6 +53,15 @@ export const MODELS: ModelInfo[] = [
     id: 'claude-opus-4-8',
     label: 'OPUS 4.8',
     price: { input: 5, output: 25, cacheWrite5m: 6.25, cacheRead: 0.5 },
+    maxOutput: 128000,
+    thinkingMode: 'adaptive',
+    allowsSampling: false,
+    effortSupported: true
+  },
+  {
+    id: 'claude-fable-5',
+    label: 'FABLE 5',
+    price: { input: 10, output: 50, cacheWrite5m: 12.5, cacheRead: 1.0 },
     maxOutput: 128000,
     thinkingMode: 'adaptive',
     allowsSampling: false,

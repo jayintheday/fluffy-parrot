@@ -3,6 +3,7 @@ import { Knob } from './Knob'
 import { ModelSelector } from './ModelSelector'
 import { DocsLabel } from './DocsLabel'
 import { docsLinks } from '../lib/docsLinks'
+import { getModel } from '../lib/models'
 import type { ClaudeParams } from '../types'
 
 interface KnobBankProps {
@@ -36,6 +37,16 @@ export function KnobBank({ params, onChange }: KnobBankProps) {
     onChange({ ...params, [key]: value })
   }, [params, onChange])
 
+  // Switching models also clamps maxTokens: a model with a smaller output cap
+  // (e.g. Sonnet 64K) must not inherit a larger value left over from Fable/Opus (128K).
+  const setModel = useCallback((model: string) => {
+    const cap = getModel(model)?.maxOutput ?? 8192
+    onChange({ ...params, model, maxTokens: Math.min(params.maxTokens, cap) })
+  }, [params, onChange])
+
+  // TOKENS knob ceiling is per-model (64K Haiku/Sonnet, 128K Opus/Fable).
+  const tokenMax = getModel(params.model)?.maxOutput ?? 8192
+
   const divider = (
     <div style={{
       width: 1,
@@ -60,7 +71,7 @@ export function KnobBank({ params, onChange }: KnobBankProps) {
       {divider}
       <ModelSelector
         value={params.model}
-        onChange={model => set('model', model)}
+        onChange={setModel}
       />
       {divider}
       <Knob
@@ -92,9 +103,9 @@ export function KnobBank({ params, onChange }: KnobBankProps) {
       <Knob
         label="TOKENS"
         value={params.maxTokens}
-        min={256} max={8192} defaultValue={2048} step={64}
+        min={256} max={tokenMax} defaultValue={2048} step={64}
         unit="tok"
-        hot={params.maxTokens > 7000}
+        hot={params.maxTokens > tokenMax * 0.85}
         docsUrl={docsLinks.maxTokens}
         onChange={v => set('maxTokens', Math.round(v / 64) * 64)}
       />
